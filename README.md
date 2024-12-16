@@ -24,7 +24,7 @@ This section explains how to set up the frontend environment for VITALEDGE.
 2. **Navigate to the `frontend` directory**:
 
     ```bash
-    cd frontend
+    cd '.\front end\'
     ```
 
 3. **Install dependencies**:

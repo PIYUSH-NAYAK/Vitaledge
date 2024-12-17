@@ -47,7 +47,6 @@ This section explains how to set up the frontend environment for VITALEDGE.
     npm install react-icons
     npm install -D sass-embedded
     npm install -D daisyui@latest
-    npm install @web3modal/react wagmi ethers
     ```
 
 7. **Run the frontend**:

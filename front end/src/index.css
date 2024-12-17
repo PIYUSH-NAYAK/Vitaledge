@@ -3,3 +3,11 @@
 @tailwind utilities; 
 
 
+html {
+    scroll-behavior: smooth;
+  }
+  body,
+  html {
+    background-color: #eafff1;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+  }

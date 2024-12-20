@@ -2,6 +2,8 @@ import { useState } from "react";
 import { BsSearchHeart } from "react-icons/bs";
 import { RxCrossCircled } from "react-icons/rx";
 import { MdDensityMedium } from "react-icons/md";
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+
 
 import css from "./NavBar.module.scss";
 import WalletConnectButton from "./WalletConnect";
@@ -31,19 +33,22 @@ const NavBar = () => {
     <>
       <div className={css.wrapper}>
         <div className={css.nav_left}>
-          <h1>VITALEDGE</h1>
+          <h1>
+            <Link to="/" >VITALEDGE</Link></h1>
         </div>
 
         <div className={`${css.main_menu} ${toggle ? css["main_menu--open"] : {}}`}>
           <ul>
             <li>
-              <a to="">HOME</a>
+            <li><Link to="/">Home</Link></li>
             </li>
             {/* <li>
               <a to="/attorney">ATTORNEY</a>
             </li> */}
             <li>
-              <a to="/about">ABOUT</a>
+            <li><Link to="/about">ABOUT</Link></li>
+
+              {/* <a to="/about">ABOUT</a> */}
             </li>
             <li>
               <a to="/services">SERVICES</a>

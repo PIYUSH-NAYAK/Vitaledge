@@ -66,7 +66,7 @@ export default function WalletConnectButton() {
         <button
           onClick={connectWallet}
           disabled={isConnecting} // Disable button while connecting
-          className={`btn btn-primary ${
+          className={`btn btn-primary btn-outline ${
             isConnecting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
           } text-white py-2 px-4 rounded-lg transition duration-300`}
         >
@@ -75,7 +75,7 @@ export default function WalletConnectButton() {
       ) : (
         <button
           onClick={disconnectWallet}
-          className="btn btn-secondary bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition duration-300"
+          className="btn btn-outline btn-error bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition duration-300"
         >
           Disconnect ({formatAccount(account)})
         </button>

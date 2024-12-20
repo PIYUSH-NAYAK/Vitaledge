@@ -64,6 +64,11 @@ const NavBar = () => {
             </li>
           </ul>
         </div>
+        <div >
+        <button className="btn btn-outline btn-primary">Primary</button>
+
+          
+        </div>
 
         <div>
           <div className={css.btns}>

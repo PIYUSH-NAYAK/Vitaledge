@@ -65,7 +65,7 @@ const Sec2 = () => {
           </div>
 
           {/* Center Content */}
-          <div className="col-span-2  md:col-span-2 px-5 py-2 md:mt-5 md:mb-5 flex justify-center">
+          <div className="col-span-2  md:col-span-2 px-5 py-2 md:mt-5 md:mb-5 xl:ml-5 flex justify-center">
             <div className="flex items-center justify-center  w-80 md:w-auto  ">
               <div
                 className="text-center shadow-md rounded-3xl p-4"
@@ -86,7 +86,7 @@ const Sec2 = () => {
           </div>
 
           {/* Right Image */}
-          <div className="col-span-1 flex justify-center md:justify-end">
+          <div className="col-span-1 flex justify-center md:justify-end xl:mr-10">
             <img
               src="/m1.avif"
               alt="Image 1"

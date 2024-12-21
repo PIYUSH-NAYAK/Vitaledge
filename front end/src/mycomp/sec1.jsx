@@ -1,6 +1,8 @@
 // import React from 'react'
 
 import Sec2 from "./sec2";
+import Sec3 from "./sec3";
+import Sec4 from "./sec4";
 
 const Sec1 = () => {
   return (
@@ -19,6 +21,8 @@ const Sec1 = () => {
       </div>
       <div>
         <Sec2 />
+        <Sec3 />
+        <Sec4 />
       </div>
     </div>
   );

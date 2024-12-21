@@ -105,9 +105,9 @@ const Nav2 = () => {
             />
           </div> */}
           <div className="flex-1 ">
-            <a href="#" className="btn btn-ghost text-xl">
+            <Link to="/" className="btn btn-ghost text-xl">
               Vitaledge
-            </a>
+            </Link>
           </div>
         </div>
         {/* <div className="navbar-center hidden lg:flex">

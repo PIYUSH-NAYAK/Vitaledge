@@ -13,7 +13,8 @@ const Sec1 = () => {
          bg-cover bg-center  flex justify-center"
         >
           <div className="text-6xl text-center pt-20 text-slate-800 font-bold mt-24">
-            Welcome to VItaledge
+            
+            Welcome to Vitaledge
           </div>
         </div>
         <div>

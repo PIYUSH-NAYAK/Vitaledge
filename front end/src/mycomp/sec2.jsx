@@ -53,7 +53,7 @@
 const Sec2 = () => {
   return (
     <div>
-      <div className="w-screen h-auto md:h-screen bg-teal-100 pt-10 pb-10 md:pt-40">
+      <div className="w-screen h-auto md:h-screen  pt-10 pb-10 ">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Left Image */}
           <div className="col-span-1 flex justify-center md:justify-end">

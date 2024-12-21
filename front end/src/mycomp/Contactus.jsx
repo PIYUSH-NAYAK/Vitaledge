@@ -1,5 +1,5 @@
 // import React from 'react';
-import './HomePage.css'; // Make sure to create this CSS file
+import './HomePage.css'; 
 
 const ContactPage = () => {
  return (

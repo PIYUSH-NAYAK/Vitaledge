@@ -1,8 +1,8 @@
 const Sec3 = () => {
   return (
-    <section className=" pt-40 md:pt-0  ">
+    <section className=" pt-40 swyam:pt-0  ">
       <div
-        className="max-w-screen-xl mx-auto px-4 py-5 md:mx-10 md:py-5  text-gray-600 md:px-8 rounded-t-3xl"
+        className="max-w-screen-xl mx-auto px-4 py-5 md:mx-10 Amrit:mx-40 md:py-5  text-gray-600 md:px-8 rounded-t-3xl"
         style={{ backgroundColor: "#96b3c1" }}
       >
         <div className="w-full space-y-3 flex flex-col justify-center items-center">

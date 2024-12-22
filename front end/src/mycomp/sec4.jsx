@@ -2,7 +2,7 @@ const Sec4 = () => {
   return (
     <section className=" ">
       <div 
-      className="max-w-screen-xl mx-auto px-4 md:mx-10 md:py-5  rounded-b-3xl  bg-white text-gray-600 md:px-8"
+      className="max-w-screen-xl mx-auto px-4 md:mx-10 md:py-5 Amrit:mx-40  rounded-b-3xl  bg-white text-gray-600 md:px-8"
       style={{ backgroundColor: "#96b3c1" }}
 >
         <div className="max-w-2xl mx-auto text-center pt-12">

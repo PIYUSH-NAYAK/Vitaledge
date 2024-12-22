@@ -9,6 +9,7 @@ export default {
       screens: {
         'Amrit': '1400px',
         'Piyush' : '1200px',
+        'Swyam' : '700px',
       },
       colors: {
         customGreen: '#BFF098',

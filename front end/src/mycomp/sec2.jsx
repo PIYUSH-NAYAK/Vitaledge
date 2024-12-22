@@ -60,21 +60,21 @@ const Sec2 = () => {
             <img
               src="/m1.avif"
               alt="Image 1"
-              className="w-80 rounded-3xl ml-3 md:w-72 sm:ml-2 my-3 md:h-auto md:rounded-3xl"
+              className="w-80 rounded-3xl ml-3 md:w-72 Amrit:w-80 sm:ml-2 my-3 md:h-auto md:rounded-3xl"
             />
           </div>
 
           {/* Center Content */}
-          <div className="col-span-2  md:col-span-2 px-5 py-2 md:mt-5 md:mb-5 Amrit:ml-5 flex justify-center">
-            <div className="flex items-center justify-center  w-80 md:w-auto  ">
+          <div className="col-span-2  md:col-span-2 px-5 py-2 md:mt-5 md:mb-5 Amrit:ml-4  flex justify-center">
+            <div className="flex items-center justify-center  w-80 md:w-auto   ">
               <div
-                className="text-center shadow-md rounded-3xl p-4"
+                className="text-center shadow-md rounded-3xl p-4 Amrit:h-60  flex flex-col  justify-center items-center"
                 style={{ backgroundColor: "#96b3c1" }}
               >
                 <h1 className="text-2xl md:text-3xl font-bold text-blue-800  underline">
                   Welcome to VitalEdge
                 </h1>
-                <p className="text-black mt-4 mb-4 text-sm md:text-base">
+                <p className="text-black mt-4 mb-4 text-sm md:text-base Amrit:mx-4 Amrit:text-xl">
                   We are an innovative platform powered by blockchain
                   technology, transforming pharmaceutical tracking. Our system
                   enables users to monitor the journey of medicines from
@@ -90,7 +90,7 @@ const Sec2 = () => {
             <img
               src="/m1.avif"
               alt="Image 1"
-              className="w-80 rounded-3xl ml-3 my-3 md:w-72 md:mr-5  md:h-auto md:rounded-3xl"
+              className="w-80 rounded-3xl ml-3 my-3 md:w-72 Amrit:w-80 Amrit:mr-0 md:mr-5  md:h-auto md:rounded-3xl"
             />
           </div>
           {/* <div className="col-span-1 flex justify-center md:justify-end">

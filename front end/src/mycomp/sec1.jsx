@@ -12,10 +12,9 @@ const Sec1 = () => {
          bg-cover bg-center  flex justify-center"
         > */}
       <div
-        className="w-screen h-screen   flex justify-center"
+        className="w-screen h-screen md:h-screen md:pt-10   flex justify-center items-center pb-52"
       >
-        {/* // </div> */}
-        <div className="text-6xl text-center pt-20 text-black font-bold mt-24">
+        <div className="text-6xl text-center  text-black font-bold mt-24">
           Welcome to Vitaledge
         </div>
       </div>

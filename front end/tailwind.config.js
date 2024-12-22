@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'Amrit': '1400px',
+        'Piyush' : '1200px',
+      },
       colors: {
         customGreen: '#BFF098',
         customBlue: '#6FD6FF',

@@ -11,12 +11,13 @@ import ContactPage from './mycomp/Contactus';
 function App() {
   return (
     <Router>
-      <Nav2/>
+      <Nav2 />
       {/* <NavBar/> */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/AboutUs" element={<About />} />
         <Route path="/ContactUs" element={<ContactPage />} />
+        <Route path="/Services" element={<Services />} />
       </Routes>
     </Router>
   );

@@ -33,8 +33,62 @@ export default function Modal({ isOpen, setIsOpen }) {
                     : ""
                 }`}
               >
+                <span
+                  className={`${
+                    steps.currentStep > idx + 1
+                      ? "hidden"
+                      : steps.currentStep === idx + 1
+                      ? "text-indigo-600"
+                      : ""
+                  }`}
+                >
+                  {idx + 1}
+                </span>
+                {steps.currentStep > idx + 1 && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5 text-white"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
+                  </svg>
+                )}
               </div>
+              <hr
+                className={`h-12 border md:hidden ${
+                  idx + 1 === steps.stepsItems.length
+                    ? "hidden"
+                    : steps.currentStep > idx + 1
+                    ? "border-indigo-600"
+                    : ""
+                }`}
+              />
             </div>
+            <div className="h-8 flex items-center md:h-auto">
+              <h3
+                className={`text-sm ${
+                  steps.currentStep === idx + 1 ? "text-indigo-600" : ""
+                }`}
+              >
+                {item}
+              </h3>
+            </div>
+            <hr
+              className={`hidden mr-2 w-full border md:block ${
+                idx + 1 === steps.stepsItems.length
+                  ? "hidden"
+                  : steps.currentStep > idx + 1
+                  ? "border-indigo-600"
+                  : ""
+              }`}
+            />
           </li>
         ))}
       </ul>

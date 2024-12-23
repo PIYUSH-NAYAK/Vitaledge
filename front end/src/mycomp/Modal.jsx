@@ -7,7 +7,7 @@ export default function Modal({ isOpen, setIsOpen }) {
   }
 
   const [steps] = useState({
-    stepsItems: ["Farmaceutica", "Enruta", "Farmacia", "Cliente"],
+    stepsItems: ["Manufacturer", "Shipped", "Nearest Hub", "Delivered"],
     currentStep: randomNumberInRange(1, 4),
   });
 

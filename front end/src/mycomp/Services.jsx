@@ -1,86 +1,86 @@
 import "./Services.css";
-import  { useState } from "react";
+import { useState } from "react";
 import Modal from "./Modal";
 
 const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const medicamentos = [
     {
-      nombre: "Insulina Humana",
-      descripcion: "Insulina Humana para el control de la glucosa en sangre",
-      fechaCaducidad: "2025-09-30",
-      costo: "150.00",
-      farmacia: "Farmacias Benavides",
+      name: "Augmentin",
+      description: "A broad-spectrum antibiotic used to treat various bacterial infections.",
+      Expiration_date: "12/2025",
+      price: "₹150 per strip of 10 tablets",
+      company: "GlaxoSmithKline",
     },
     {
-      nombre: "Metformina",
-      descripcion: "Metformina para el tratamiento de la diabetes tipo 2",
-      fechaCaducidad: "2025-12-31",
-      costo: "120.00",
-      farmacia: "Farmalisto",
+      name: "Pantocid",
+      description: "A proton pump inhibitor used to treat acid reflux and peptic ulcer disease.",
+      Expiration_date: "09/2025",
+      price: "₹120 per strip of 15 tablets",
+      company: "Sun Pharmaceutical Industries Ltd.",
     },
     {
-      nombre: "Gliclazida",
-      descripcion: "Gliclazida para el control de la glucosa en sangre",
-      fechaCaducidad: "2026-03-31",
-      costo: "130.00",
-      farmacia: "Yza",
+      name: "Allegra",
+      description: "An antihistamine used to relieve allergy symptoms such as runny nose and sneezing.",
+      Expiration_date: "08/2025",
+      price: "₹180 per strip of 10 tablets",
+      company: "Sanofi India Ltd.",
     },
     {
-      nombre: "Sulfonilmida",
-      descripcion: "Sulfonilmida para el tratamiento de la diabetes tipo 2",
-      fechaCaducidad: "2026-06-30",
-      costo: "140.00",
-      farmacia: "Farmacias San Pablo",
+      name: "Combiflam",
+      description: "A combination of ibuprofen and paracetamol used for pain relief and reducing inflammation.",
+      Expiration_date: "07/2025",
+      price: "₹50 per strip of 20 tablets",
+      company: "Sanofi India Ltd.",
     },
     {
-      nombre: "Atenolol",
-      descripcion: "Atenolol para el control de la presión arterial alta",
-      fechaCaducidad: "2025-09-30",
-      costo: "150.00",
-      farmacia: "Farmacias Guadalajara",
+      name: "Dolo 650",
+      description: "A paracetamol tablet used for relieving fever and mild to moderate pain.",
+      Expiration_date: "06/2025",
+      price: "₹30 per strip of 15 tablets",
+      company: "Micro Labs Ltd.",
     },
     {
-      nombre: "Lisinopril",
-      descripcion: "Lisinopril para el tratamiento de la hipertensión",
-      fechaCaducidad: "2025-12-31",
-      costo: "120.00",
-      farmacia: "Farmacias de similares",
+      name: "Saridon",
+      description: "An analgesic used for the relief of headaches and other types of pain.",
+      Expiration_date: "05/2025",
+      price: "₹35 per strip of 10 tablets",
+      company: "Piramal Enterprises Ltd.",
     },
     {
-      nombre: "Metoprolol",
-      descripcion: "Metoprolol para el control de la presión arterial alta",
-      fechaCaducidad: "2026-03-31",
-      costo: "130.00",
-      farmacia: "Farmacias Benavides",
+      name: "Betadine",
+      description: "An antiseptic ointment used for preventing infections in minor cuts and burns.",
+      Expiration_date: "04/2025",
+      price: "₹60 per 20g tube",
+      company: "Win-Medicare Pvt. Ltd.",
     },
     {
-      nombre: "Amlodipino",
-      descripcion: "Amlodipino para el tratamiento de la hipertensión",
-      fechaCaducidad: "2026-06-30",
-      costo: "140.00",
-      farmacia: "Farmalisto",
+      name: "Revital H",
+      description: "A daily health supplement with vitamins and minerals to improve energy and immunity.",
+      Expiration_date: "03/2025",
+      price: "₹300 per pack of 30 capsules",
+      company: "Sun Pharmaceutical Industries Ltd.",
     },
     {
-      nombre: "Trametinib",
-      descripcion: "Trametinib para el tratamiento del cáncer de pulmón",
-      fechaCaducidad: "2025-09-30",
-      costo: "250.00",
-      farmacia: "Yza",
+      name: "Glycomet GP",
+      description: "An anti-diabetic medication used to manage blood sugar levels in type 2 diabetes patients.",
+      Expiration_date: "11/2025",
+      price: "₹90 per strip of 10 tablets",
+      company: "USV Pvt. Ltd.",
     },
     {
-      nombre: "Daratumumab",
-      descripcion: "Daratumumab para el tratamiento del mieloma múltiple",
-      fechaCaducidad: "2025-12-31",
-      costo: "220.00",
-      farmacia: "Farmacias San Pablo",
+      name: "Calpol",
+      description: "A paracetamol-based analgesic and antipyretic used for relieving pain and reducing fever.",
+      Expiration_date: "10/2025",
+      price: "₹30 per strip of 15 tablets",
+      company: "GlaxoSmithKline",
     },
     {
-      nombre: "Hidroxicloroquina",
-      descripcion: "Hidroxicloroquina para el tratamiento del lupus",
-      fechaCaducidad: "2026-03-31",
-      costo: "230.00",
-      farmacia: "Farmacias Guadalajara",
+      name: "Volini Gel",
+      description: "A topical analgesic gel used for relieving muscle and joint pain.",
+      Expiration_date: "02/2025",
+      price: "₹100 per 30g tube",
+      company: "Sun Pharmaceutical Industries Ltd.",
     },
   ];
 
@@ -92,7 +92,7 @@ const Services = () => {
             <div className="items-start justify-between py-4 border-b md:flex">
               <div>
                 <h1 className="text-gray-800 text-3xl font-semibold">
-                  Lista de Medicamentos
+                  List of Medicines
                 </h1>
               </div>
               <div className="items-center gap-x-3 mt-6 md:mt-0 sm:flex">
@@ -100,7 +100,7 @@ const Services = () => {
                   href="/"
                   className="block px-4 py-2 text-center text-white duration-150 font-bold bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
                 >
-                  Agregar
+                  Add Medicine
                 </a>
               </div>
             </div>
@@ -116,10 +116,10 @@ const Services = () => {
                 <div className="justify-between sm:flex">
                   <div className="flex-1">
                     <h3 className="text-xl font-medium text-cyan-600">
-                      {item.nombre}
+                      {item.name}
                     </h3>
                     <p className="text-gray-500 mt-2 pr-2">
-                      {item.descripcion}
+                      {item.description}
                     </p>
                   </div>
                   <div className="mt-5 space-y-4 text-sm sm:mt-0 sm:space-y-2">
@@ -136,7 +136,7 @@ const Services = () => {
                           clipRule="evenodd"
                         />
                       </svg>
-                      {item.fechaCaducidad}
+                      {item.Expiration_date}
                     </span>
                     <span className="flex items-center text-gray-500">
                       <svg
@@ -152,7 +152,7 @@ const Services = () => {
                           clipRule="evenodd"
                         />
                       </svg>
-                      ${item.costo}
+                      {item.price}
                     </span>
                   </div>
                 </div>
@@ -170,7 +170,7 @@ const Services = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {item.farmacia}
+                    {item.company}
                   </span>
                 </div>
                 <div class="pt-5">

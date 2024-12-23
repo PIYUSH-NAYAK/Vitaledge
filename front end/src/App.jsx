@@ -12,7 +12,7 @@ import Services from './mycomp/Services';
 function App() {
   return (
     <Router>
-      <Nav2/>
+      <Nav2 />
       {/* <NavBar/> */}
       <Routes>
         <Route path="/" element={<Home />} />

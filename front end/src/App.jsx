@@ -7,6 +7,7 @@ import About from './mycomp/Aboutus';
 import Nav2 from './mycomp/Nav';
 // import ContactPage from './mycomp/Contactus';
 import ContactPage from './mycomp/Contactus';
+import Services from './mycomp/Services';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/AboutUs" element={<About />} />
         <Route path="/ContactUs" element={<ContactPage />} />
+        <Route path="/Services" element={<Services />} />
       </Routes>
     </Router>
   );

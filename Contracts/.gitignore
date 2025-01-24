@@ -1,0 +1,10 @@
+# Ignore target directory
+/medweb3/target/
+
+# Ignore RocksDB files
+/test-ledger/rocksdb/
+*.log
+*.d
+
+# Ignore snapshot and hardlink files
+/test-ledger/snapshot/

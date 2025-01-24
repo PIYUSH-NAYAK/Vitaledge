@@ -118,9 +118,9 @@ const Nav2 = () => {
         <div className="hidden lg:block mr-5">
           <WalletConnectButton />
         </div>
-        <a href="/LoginPage">
-          <button className="btn btn-outline btn-primary">Login</button>
-        </a>
+        <Link to="/Login">
+          <button className="btn btn-ghost">Login</button>
+        </Link>
       </div>
     </div>
   </div>

@@ -1,33 +1,117 @@
-// import React from 'react';
-import './HomePage.css'; 
+import React from 'react';
 
 const ContactPage = () => {
- return (
-  <div className="flex h-[730px] items-center justify-start bg-white">
-    <div className="mx-auto w-full max-w-lg p-10 bg-white border-gray-300 border-[1px] rounded-md shadow-lg">
-      <h1 className="text-gray-800 text-3xl font-bold">Contact Us</h1>
-      <p className="mt-3">Send an email to <a href="mailto:contacto@helloheath.com" className="underline text-[#3E8AED]">contacto@helloheath.com</a> or write to us here:</p>
-  
-      <form className="mt-10">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="relative z-0">
-            <input type="text" name="name" className="peer block w-full appearance-none border-0 border-b border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-400 focus:border-[#3E8AED] focus:outline-none focus:ring-0" placeholder=" " />
-            <label className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-[#3E8AED]">Your name</label>
+  return (
+    <div className="contact_us_6 font-nunito bg-white min-h-screen flex items-center justify-center p-8 ">
+      {/* <div className="container mx-auto flex lg:flex-nowrap lg:justify-between bg-green-500 "> */}
+      <div className='pr-10 ml-20 my-10'>
+
+        {/* Contact Form */}
+        <form className="form-box w-screen shadow-lg rounded-lg p-8 max-w-lg w-full">
+          <div className="form-wrapper">
+            {/* Form Header */}
+            <div className="text-center mb-8 mt-16">
+              <h1 className="text-black text-2xl font-semibold mb-4">Get in Touch</h1>
+              <p className="text-gray-500 text-sm">
+                Have questions? Feel free to contact us with your queries.
+              </p>
+            </div>
+            {/* Form Fields */}
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="firstName" className="block text-gray-700">First Name</label>
+                <input
+                  id="firstName"
+                  className="w-full border border-gray-300 p-3 rounded bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  name="FirstName"
+                  placeholder="Enter your first name"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-gray-700">Email</label>
+                <input
+                  id="email"
+                  className="w-full border border-gray-300 p-3 rounded bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  name="Email"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="phoneNumber" className="block text-gray-700">Phone Number</label>
+                <input
+                  id="phoneNumber"
+                  className="w-full border border-gray-300 p-3 rounded bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  name="PhoneNumber"
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="message" className="block text-gray-700">What do you have in mind?</label>
+                <textarea
+                  id="message"
+                  className="w-full border border-gray-300 p-3 rounded bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  name="Message"
+                  placeholder="Enter your query"
+                  required
+                ></textarea>
+              </div>
+            </div>
+            <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded mt-6">
+              Submit
+            </button>
           </div>
-          <div className="relative z-0">
-            <input type="email" name="email" className="peer block w-full appearance-none border-0 border-b border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-400 focus:border-[#3E8AED] focus:outline-none focus:ring-0" placeholder=" " />
-            <label className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-[#3E8AED]">Your email</label>
-          </div>
-          <div className="relative z-0 col-span-2">
-            <textarea name="message" rows="4" className="peer block w-full appearance-none border-0 border-b border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-400 focus:border-[#3E8AED] focus:outline-none focus:ring-0" placeholder=" "></textarea>
-            <label className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-400 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-[#3E8AED]">Your message</label>
+        </form>
+      </div>
+      {/* </div> */}
+
+      {/* Map Section */}
+      <div className='ml-20 '>
+        <div className="map-part flex flex-col items-center  justify-center  w-full mt-8 pr-40 lg:mt-0">
+          <p className="text-black text-2xl font-semibold mb-4">Reach us at</p>
+          <p className="text-gray-500 text-sm mb-6">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Felis diam lectus sapien.
+          </p>
+          <div
+            className="w-full h-64 bg-gray-300 bg-cover bg-center rounded-lg mb-6"
+            style={{ backgroundImage: 'url("https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/sc23.png")' }}
+          ></div>
+          <div className="flex space-x-4">
+            <a href="#" className="text-gray-500 hover:text-blue-500">
+              <img
+                className="w-8 h-8"
+                src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-twitter.png"
+                alt="Twitter"
+              />
+            </a>
+            <a href="#" className="text-gray-500 hover:text-blue-500">
+              <img
+                className="w-8 h-8"
+                src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-facebook.png"
+                alt="Facebook"
+              />
+            </a>
+            <a href="#" className="text-gray-500 hover:text-blue-500">
+              <img
+                className="w-8 h-8"
+                src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-google.png"
+                alt="Google"
+              />
+            </a>
+            <a href="#" className="text-gray-500 hover:text-blue-500">
+              <img
+                className="w-8 h-8"
+                src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-instagram.png"
+                alt="Instagram"
+              />
+            </a>
           </div>
         </div>
-        <button type="submit" className="mt-5 w-full rounded-md bg-[#3E8AED] py-3 text-white">Send Message</button>
-      </form>
+      </div>
     </div>
-  </div>
- );
+  );
 };
 
 export default ContactPage;

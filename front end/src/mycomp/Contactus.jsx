@@ -1,6 +1,7 @@
 import React from 'react';
 
 const ContactPage = () => {
+  
   return (
     <div className="contact_us_6 font-nunito bg-white min-h-screen flex items-center justify-center p-8 ">
       {/* <div className="container mx-auto flex lg:flex-nowrap lg:justify-between bg-green-500 "> */}

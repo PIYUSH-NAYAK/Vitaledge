@@ -7,7 +7,7 @@ const ContactPage = () => {
       <div className='pr-10 ml-20 my-10'>
 
         {/* Contact Form */}
-        <form className="form-box w-screen shadow-lg rounded-lg p-8 max-w-lg w-full">
+        <form className="form-box w-screen shadow-lg rounded-lg p-8 max-w-lg">
           <div className="form-wrapper">
             {/* Form Header */}
             <div className="text-center mb-8 mt-16">
@@ -35,16 +35,6 @@ const ContactPage = () => {
                   className="w-full border border-gray-300 p-3 rounded bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   name="Email"
                   placeholder="Enter your email"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="phoneNumber" className="block text-gray-700">Phone Number</label>
-                <input
-                  id="phoneNumber"
-                  className="w-full border border-gray-300 p-3 rounded bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  name="PhoneNumber"
-                  placeholder="Enter your phone number"
                   required
                 />
               </div>

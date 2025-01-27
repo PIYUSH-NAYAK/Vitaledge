@@ -55,12 +55,13 @@ function Login() {
 
           <div className={`p-5 text-center ${isSignUp ? '' : 'hidden'}`}>
             <h2 className="text-green-600 text-lg">SIGN UP</h2>
-            <div className="mt-8">
+            <div className="mt-4 mb-4">
               <input type="text" name="fullname" placeholder="  FULLNAME" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
               <input type="text" name="email" placeholder="  EMAIL" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
               <input type="password" name="password" placeholder="  PASSWORD" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
+              <input type="password" name="password" placeholder="  PASSWORD" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
             </div>
-            <button className="bg-green-600 text-white text-xs font-light py-2 px-4 rounded-lg absolute bottom-7 right-7">SIGN UP</button>
+            <button className="bg-green-600 text-white text-xs font-light py-2 px-4 rounded-lg absolute bottom-4 right-7">SIGN UP</button>
           </div>
         </div>
       </div>

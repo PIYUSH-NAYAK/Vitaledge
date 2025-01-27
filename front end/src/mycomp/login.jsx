@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -7,75 +7,62 @@ function Login() {
     setIsSignUp(!isSignUp);
   };
 
+  useEffect(() => {
+    const switchToSignUp = setTimeout(() => {
+      setIsSignUp(true);
+    }, 1000);
+
+    const switchToLogin = setTimeout(() => {
+      setIsSignUp(false);
+    }, 3000);
+
+    return () => {
+      clearTimeout(switchToSignUp);
+      clearTimeout(switchToLogin);
+    };
+  }, []);
+
   return (
-    <div className="flex justify-center items-center h-screen bg-white relative">
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/sc23.png")', opacity: 0.3 }}></div>
-      <div className={`relative w-[900px] h-[550px] bg-white shadow-xl rounded-lg overflow-hidden z-10 ${isSignUp ? 's-signup' : ''}`}>
-        {/* Sign In Form */}
-        <div className={`absolute w-[640px] h-full p-8 transition-transform duration-1000 ${isSignUp ? 'translate-x-[640px]' : ''}`}>
-          <h2 className="text-3xl font-bold text-center">Sign In</h2>
-          <div className="mt-8 space-y-6">
-            <label className="block">
-              <span className="block text-gray-600 font-semibold uppercase text-sm">Email Address</span>
-              <input
-                type="email"
-                name="email"
-                className="w-full mt-2 border-b border-gray-400 focus:outline-none focus:border-black p-2 text-center"
-              />
-            </label>
-            <label className="block">
-              <span className="block text-gray-600 font-semibold uppercase text-sm">Password</span>
-              <input
-                type="password"
-                name="password"
-                className="w-full mt-2 border-b border-gray-400 focus:outline-none focus:border-black p-2 text-center"
-              />
-            </label>
-            <button className="w-full py-2 mt-6 bg-gray-800 text-white font-semibold uppercase rounded-full hover:bg-black">
-              Sign In
-            </button>
+    <div className="flex justify-center items-center h-screen bg-gray-400 font-roboto">
+      <div className="relative flex w-[600px] h-[350px]">
+        <div className="absolute w-full h-[80%] bg-gray-800 flex top-1/2 transform -translate-y-1/2">
+          <div className={`w-1/2 h-full text-sm box-border ${isSignUp ? 'opacity-0 transition-opacity duration-700' : 'opacity-100 transition-opacity duration-700'}`}>
+            <div className="text-white mt-16 ml-12">
+              <p className="font-light text-[23px]">Don't have an account?</p>
+              <p className="font-thin">Sign up to save all your graph.</p>
+              <button id="switch1" onClick={toggleSignUp} className="bg-gray-800 border-2 border-white rounded-lg text-white text-xs font-light py-2 mt-5">Sign Up</button>
+            </div>
           </div>
-          <div className="flex justify-center mt-6 space-x-4">
-            <img src="/images/facebook.png" alt="Facebook" className="w-6 h-6" />
-            <img src="/images/twitter.png" alt="Twitter" className="w-6 h-6" />
-            <img src="/images/linkedin.png" alt="LinkedIn" className="w-6 h-6" />
-            <img src="/images/instagram.png" alt="Instagram" className="w-6 h-6" />
+          <div className={`w-1/2 h-full text-sm box-border ${isSignUp ? 'opacity-100 transition-opacity duration-700' : 'opacity-0 transition-opacity duration-700'}`}>
+            <div className="text-white mt-16 ml-12">
+              <p className="font-light text-[23px]">Have an account?</p>
+              <p className="font-thin">Log in to see all your collection.</p>
+              <button id="switch2" onClick={toggleSignUp} className="bg-gray-800 border-2 border-white rounded-lg text-white text-xs font-light py-2 mt-5">LOG IN</button>
+            </div>
           </div>
         </div>
 
-        {/* Sign Up Form */}
-        <div className={`absolute w-[640px] h-full p-8 transition-transform duration-1000 ${isSignUp ? '' : 'translate-x-[640px]'}`}>
-          <h2 className="text-3xl font-bold text-center">Sign Up</h2>
-          <div className="mt-8 space-y-6">
-            <label className="block">
-              <span className="block text-gray-600 font-semibold uppercase text-sm">Email Address</span>
-              <input
-                type="email"
-                name="email"
-                className="w-full mt-2 border-b border-gray-400 focus:outline-none focus:border-black p-2 text-center"
-              />
-            </label>
-            <label className="block">
-              <span className="block text-gray-600 font-semibold uppercase text-sm">Password</span>
-              <input
-                type="password"
-                name="password"
-                className="w-full mt-2 border-b border-gray-400 focus:outline-none focus:border-black p-2 text-center"
-              />
-            </label>
-            <button className="w-full py-2 mt-6 bg-gray-800 text-white font-semibold uppercase rounded-full hover:bg-black">
-              Sign Up
-            </button>
+        <div className={`absolute bg-white rounded-2xl h-full w-1/2 right-0 mx-3 transition-all duration-700 ${isSignUp ? 'right-[45%]' : ''}`}>
+          <div className={`p-5 text-center ${isSignUp ? 'hidden' : ''}`}>
+            <h2 className="text-green-600 text-lg">LOG IN</h2>
+            <div className="mt-8">
+              <input type="text" name="email" placeholder="  EMAIL" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
+              <input type="password" name="password" placeholder="  PASSWORD" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
+            </div>
+            <p className="text-gray-800 text-sm cursor-pointer">FORGET PASSWORD?</p>
+            <button className="bg-green-600 text-white text-xs font-light py-2 px-4 rounded-lg absolute bottom-7 right-7">LOG IN</button>
+          </div>
+
+          <div className={`p-5 text-center ${isSignUp ? '' : 'hidden'}`}>
+            <h2 className="text-green-600 text-lg">SIGN UP</h2>
+            <div className="mt-8">
+              <input type="text" name="fullname" placeholder="  FULLNAME" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
+              <input type="text" name="email" placeholder="  EMAIL" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
+              <input type="password" name="password" placeholder="  PASSWORD" className="block w-full h-10 bg-gray-200 mb-5 text-xs" />
+            </div>
+            <button className="bg-green-600 text-white text-xs font-light py-2 px-4 rounded-lg absolute bottom-7 right-7">SIGN UP</button>
           </div>
         </div>
-
-        {/* Toggle Button */}
-        <button
-          onClick={toggleSignUp}
-          className="absolute bottom-4 right-4 py-2 px-4 bg-gray-500 text-white font-semibold rounded-md hover:bg-gray-600"
-        >
-          {isSignUp ? 'Switch to Sign In' : 'Switch to Sign Up'}
-        </button>
       </div>
     </div>
   );

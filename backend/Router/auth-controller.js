@@ -1,10 +1,14 @@
 const contact = require("../Models/contactModel");
+const user = require("../Models/User-Model");
 
 
 const home = (req, res) => {
     res.send('Hello, World!');
 };
 
+
+
+// const Contact
 const contactUs =async (req,res)=>{
 
     try {
@@ -28,5 +32,7 @@ const contactUs =async (req,res)=>{
     
   
 }
-// const Contact
+
+
+
 module.exports = {home,contactUs};

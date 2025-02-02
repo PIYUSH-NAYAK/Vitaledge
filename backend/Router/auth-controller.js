@@ -1,6 +1,7 @@
 const contact = require("../Models/contactModel");
 const user = require("../Models/User-Model");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 
 
@@ -51,7 +52,11 @@ const register = async (req, res) => {
         if (password !== confirmPassword) {
             return res.status(422).json({ error: "Password does not match" });
         }
-        const newUser = await user.create({ name, email, password, confirmPassword });
+        const salt = 10;
+        const hashedPass = await bcrypt.hash(password, salt);
+
+
+        const newUser = await user.create({ name, email, password:hashedPass, confirmPassword:hashedPass });
         res.status(201).json({ 
             msg: "User registered successfully",
             token : await newUser.genToken(),
@@ -83,15 +88,24 @@ const login = async (req, res) => {
                     : "Create Account First"
             });
         }
-        if (userExist.password !== password) {
-            return res.status(422).json({
-                message: "Invalid Credentials"
+
+        const validPass = await bcrypt.compare(password, userExist.password);
+
+        if(validPass){
+            return res.status(201).json({
+                message: "Login Successful",
+                token : await userExist.genToken(),
+                userId : userExist._id
             });
         }
+        // if (userExist.password !== password) {
+        //     return res.status(422).json({
+        //         message: "Invalid Credentials"
+        //     });
+        // }
         else{
-            return res.status(201).json({
-                message: "Login Successful"
-            });
+            res.status(400).json({ message: "Invalid Credentials" });
+
         }
 
     } catch (error) {

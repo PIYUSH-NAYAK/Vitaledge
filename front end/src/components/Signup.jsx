@@ -1,26 +1,29 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import InputControls from "../comp2/Inputcontrols";
 
-const InputControl = ({ label, type, placeholder, value, onChange }) => (
-  <div className="mb-4">
-    <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor={label}>
-      {label}
-    </label>
-    <input
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-gray-800 leading-tight focus:outline-none focus:shadow-outline placeholder-gray-500"
-      id={label}
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-    />
-  </div>
-);
+
+// const InputControls = ({ label, type, placeholder, value, onChange }) => (
+//   <div className="mb-4">
+//     <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor={label}>
+//       {label}
+//     </label>
+//     <input
+//       className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-gray-800 leading-tight focus:outline-none focus:shadow-outline placeholder-gray-500"
+//       id={label}
+//       type={type}
+//       placeholder={placeholder}
+//       value={value}
+//       onChange={onChange}
+//     />
+//   </div>
+// );
 
 const SignupForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -30,32 +33,43 @@ const SignupForm = () => {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-gray-900 p-10 rounded-xl shadow-md">
+      
+      <div className="relative z-1 p-1   rounded-2xl bg-conic-gradient">
+
+      
+      <div className="max-w-md w-screen space-y-8 bg-gray-900 p-10 rounded-xl shadow-md">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">Sign Up</h2>
+          <h2 className=" text-center text-3xl font-extrabold text-white">Sign Up</h2>
           <p className="mt-2 text-center text-sm text-gray-400">Create your account</p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
-          <InputControl
+          <InputControls
             label="Name"
             type="text"
             placeholder="Enter your name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <InputControl
+          <InputControls
             label="Email"
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <InputControl
+          <InputControls
             label="Password"
             type="password"
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+          <InputControls
+            label="Confirm Password"
+            type="password"
+            placeholder="Enter your password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <div>
             <button
@@ -93,6 +107,7 @@ const SignupForm = () => {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 };

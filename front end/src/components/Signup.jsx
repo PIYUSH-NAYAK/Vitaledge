@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import InputControls from "../comp2/Inputcontrols";
+const URI = "http://localhost:7777/register";
 
 
 // const InputControls = ({ label, type, placeholder, value, onChange }) => (
@@ -25,10 +26,43 @@ const SignupForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+
+    const signupData = { name, email, password, confirmPassword };
+    // console.log("i am her 1")
+
+    try {
+      
+      const response= await fetch(URI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signupData),
+      });
+      const data = await response.json();
+      // console.log("i am here 2")
+
+      if(response.ok){
+        console.log("Signup Successful");
+      }
+      else{
+        console.log("Signup Failed");
+        if(data.message){
+          console.log(data.message);
+      }
+      }
+      
+    } catch (error) {
+      console.log("Signup Failed");
+      console.log(error);
+      
+    }
+
+
     // Add your signup logic here
-    console.log("Signup with:", { name, email, password });
+    // console.log("Signup with:", { name, email, password });
   };
 
   return (

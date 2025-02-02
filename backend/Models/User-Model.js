@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 const schema = new mongoose.Schema({
 
@@ -21,6 +22,31 @@ const schema = new mongoose.Schema({
     }
 
 });
+
+
+schema.methods.genToken = async function(){
+    try {
+        return jwt.sign({
+            userId: this._id.toString(),
+            email: this.email
+    
+        }
+        ,process.env.SECRET_KEY,
+        {
+            expiresIn: '30d'
+        }
+        )
+        
+    } catch (error) {
+        console.log("error in generating token", error);    
+            return null;
+        
+    }
+  
+
+}
+
+
 
 
 const user= mongoose.model('USERS', schema);

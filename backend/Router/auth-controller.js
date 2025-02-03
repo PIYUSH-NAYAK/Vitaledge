@@ -121,6 +121,7 @@ const authUser = async (req, res) => {
     try {
         const userData =  req.user;
         res.status(200).json({userData});
+        console.log(userData)
         
     } catch (error) {
         console.error("Server Error:", error);

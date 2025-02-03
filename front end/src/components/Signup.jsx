@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import InputControls from "../comp2/Inputcontrols";
+import { useAuth } from "../store/auth";
+import { useNavigate } from "react-router-dom";
 const URI = "http://localhost:7777/register";
 
 
@@ -25,6 +27,11 @@ const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const nav = useNavigate();
+
+
+  const {storeToken} = useAuth();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -46,16 +53,26 @@ const SignupForm = () => {
 
       if(response.ok){
         console.log("Signup Successful");
+        storeToken(data.token);
+        nav('/login');
+
+
+        setName("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setErrorMessage("");
       }
       else{
         console.log("Signup Failed");
         if(data.message){
           console.log(data.message);
       }
+      setErrorMessage(data.msg || "Signup failed");
       }
       
     } catch (error) {
-      console.log("Signup Failed");
+      console.log("Registration Failed");
       console.log(error);
       
     }

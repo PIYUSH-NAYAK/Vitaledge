@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // For navigation after successful login
 import InputControls from "../comp2/Inputcontrols";
+import {useAuth} from "../store/auth";
+
 
 const URI = "http://localhost:7777/login";
 
@@ -10,6 +12,8 @@ const Login = () => {
   const [errorMessage, setErrorMsg] = useState("");
   const nav = useNavigate();
 
+
+  const {storeToken} = useAuth();
   // const { storeToken } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -30,12 +34,16 @@ const Login = () => {
 
       if (response.ok) {
         console.log("Login successful:", data);
-        // storeToken(data.token);
+        storeToken(data.token);
+
+        setEmail("");
+        setPassword("");
+        setErrorMsg("");
+        // nav('/'); 
         
-        // toast.success(data.msg || "Login successful!"); // Show toast success message
 
          
-        nav('/'); // Navigate on successful login
+        nav('/');
       } else {
         const errorMsg = data.message || data.msg || "Login failed";
         setErrorMsg(errorMsg);

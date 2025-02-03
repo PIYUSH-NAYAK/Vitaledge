@@ -15,6 +15,8 @@ import Login from "./components/Login";
 import Products from "./comp2/Products";
 import AboutPage from "./components/Aboutus";
 import SignupForm from "./components/Signup";
+import Error404 from "./components/errorPage";
+import Logout from "./components/Logout";
 
 
 const App = () => {
@@ -29,6 +31,8 @@ const App = () => {
           <Route path='/register' element={<SignupForm />} />
           <Route path='/products' element={<Products />} />
           <Route path='/aboutus' element={<AboutPage />} />
+          <Route path='/logout' element={<Logout />} />
+          <Route path='*' element={<Error404/>} />
         </Routes>
         <Footer />
       </div>

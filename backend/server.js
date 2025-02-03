@@ -2,9 +2,12 @@ require('dotenv').config();
 const cors=require('cors');
 
 
+
 const express = require('express');
-const router = require('./Router/auth-router');
 const app = express();
+const router = require('./Router/auth-router');
+
+
 app.use(cors());
 var corsOptions = {
     origin: 'http://localhost:5173/',

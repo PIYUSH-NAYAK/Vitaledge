@@ -1,63 +1,8 @@
-"use client"
-
-import { useState, useEffect } from "react"
+"use client";
 
 export default function AboutPage() {
-  const [isDark, setIsDark] = useState(false)
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setIsDark(true)
-      document.documentElement.classList.add("dark")
-    }
-  }, [])
-
-  const toggleDarkMode = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle("dark")
-  }
-
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      {/* Theme Toggle Button */}
-      <button
-        className="fixed top-4 right-4 z-50 p-2 rounded-full bg-secondary text-secondary-foreground"
-        onClick={toggleDarkMode}
-        aria-label="Toggle dark mode"
-      >
-        {isDark ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-            />
-          </svg>
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-            />
-          </svg>
-        )}
-      </button>
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted">
@@ -68,8 +13,7 @@ export default function AboutPage() {
                   About Our Company
                 </h1>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  We're on a mission to transform the digital landscape through innovative solutions and exceptional
-                  service.
+                  We are a pioneering team revolutionizing healthcare delivery by leveraging blockchain technology for secure and transparent medicine distribution.
                 </p>
               </div>
             </div>
@@ -85,25 +29,25 @@ export default function AboutPage() {
                   Our Values
                 </div>
                 <h2 className="lg:leading-tighter text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl xl:text-[3.4rem] 2xl:text-[3.75rem]">
-                  Building the future, today.
+                  Delivering Trust in Every Pill
                 </h2>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  We believe in pushing boundaries, fostering innovation, and creating solutions that make a difference.
+                  We believe in leveraging cutting-edge technologies to ensure safety, transparency, and accountability in the healthcare industry.
                 </p>
               </div>
               <div className="grid gap-6">
                 {[
                   {
                     title: "Innovation",
-                    description: "Constantly pushing the boundaries of what's possible.",
+                    description: "Pioneering blockchain-powered healthcare solutions.",
                   },
                   {
                     title: "Excellence",
-                    description: "Committed to delivering the highest quality in everything we do.",
+                    description: "Ensuring safe, reliable, and efficient medicine delivery systems.",
                   },
                   {
                     title: "Integrity",
-                    description: "Building trust through transparency and honest relationships.",
+                    description: "Building trust by ensuring authenticity and transparency.",
                   },
                 ].map((value) => (
                   <div
@@ -126,22 +70,22 @@ export default function AboutPage() {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Meet Our Team</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  The talented people behind our success
+                  The innovators behind secure and transparent medicine delivery
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
               {[
                 {
-                  name: "Sarah Johnson",
+                  name: "Swyam Kumar",
                   role: "CEO & Founder",
                 },
                 {
-                  name: "Michael Chen",
+                  name: "Piyush Nayak",
                   role: "CTO",
                 },
                 {
-                  name: "Emily Davis",
+                  name: "Amritanshu",
                   role: "Head of Design",
                 },
               ].map((member) => (
@@ -172,7 +116,7 @@ export default function AboutPage() {
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Let's Connect</h2>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                  Have questions about secure medicine delivery? We're here to help. Get in touch with us today.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
@@ -191,7 +135,7 @@ export default function AboutPage() {
                         d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
                       />
                     </svg>
-                    <p>123 Business Street, Suite 100, City, State 12345</p>
+                    <p>123 Blockchain Blvd, Suite 100, City, State 12345</p>
                   </div>
                   <div className="flex items-center space-x-4">
                     <svg
@@ -225,7 +169,7 @@ export default function AboutPage() {
                         d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
                       />
                     </svg>
-                    <p>hello@company.com</p>
+                    <p>hello@blockchainmed.com</p>
                   </div>
                 </div>
               </div>
@@ -245,6 +189,5 @@ export default function AboutPage() {
         </section>
       </main>
     </div>
-  )
+  );
 }
-

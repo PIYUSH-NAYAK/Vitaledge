@@ -67,8 +67,25 @@ const Header = () => {
                 {item.title}
               </a>
             ))}
-            {!loggedIn && (
+
+            {/* Conditional rendering for logged-in or logged-out users */}
+            {loggedIn ? (
               <>
+                {/* For logged-in users in the hamburger menu */}
+                <a
+                  href="/logout"
+                  onClick={handleClick}
+                  className="block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 lg:-mr-0.25 lg:text-xs lg:font-semibold lg:leading-5 lg:hover:text-n-1 xl:px-12 lg:hidden"
+                >
+                  Logout
+                </a>
+                <div className="lg:hidden px-6 py-6 md:py-8">
+                  <WalletConnectButton />
+                </div>
+              </>
+            ) : (
+              <>
+                {/* For logged-out users in the hamburger menu */}
                 <a
                   href="/register"
                   onClick={handleClick}
@@ -89,6 +106,33 @@ const Header = () => {
 
           <HamburgerMenu />
         </nav>
+
+        {/* Full-screen menu: conditional rendering based on loggedIn */}
+        {loggedIn ? (
+          <>
+            <div className="flex items-center space-x-4 ml-auto">
+              <Button className="hidden lg:flex" mr-5>
+                <div>
+                  <WalletConnectButton />
+                </div>
+              </Button>
+              <Button className="hidden lg:flex" href="/logout">
+                Logout
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center space-x-4 ml-auto">
+              <Button className="hidden lg:flex" href="/register">
+                Register
+              </Button>
+              <Button className="hidden lg:flex" href="/login">
+                Login
+              </Button>
+            </div>
+          </>
+        )}
 
         <Button
           className="ml-auto lg:hidden"

@@ -14,10 +14,10 @@ const Benefits = () => {
           title="Your Health, Our Priority — Vitalege"
         />
 
-        <div className="flex flex-wrap gap-10 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-10">
           {benefits.map((item) => (
             <div
-              className="block relative p-0.5 bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem]"
+              className="block relative p-0.5 bg-no-repeat bg-[length:100%_100%] "
               style={{
                 backgroundImage: `url(${item.backgroundUrl})`,
               }}

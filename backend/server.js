@@ -10,7 +10,7 @@ const router = require('./Router/auth-router');
 
 app.use(cors());
 var corsOptions = {
-    origin: 'http://localhost:5173/',
+    origin: 'http://localhost:0006/',
     methods : "GET,HEAD,PUT,PATCH,POST,DELETE",
     Credentials : true,
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204

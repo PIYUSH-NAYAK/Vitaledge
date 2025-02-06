@@ -75,7 +75,7 @@ export default function WalletConnectButton() {
       ) : (
         <button
           onClick={disconnectWallet}
-          className="btn btn-outline btn-error bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition duration-300"
+          className="btn btn-outline btn-error "
         >
           Disconnect ({formatAccount(account)})
         </button>

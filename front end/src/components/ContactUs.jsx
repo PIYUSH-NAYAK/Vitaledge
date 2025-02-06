@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 const URI = "http://localhost:7777/contact";
+import  {useAuth} from "../store/auth";
 
 const ContactPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name); // Set the name from user data if logged in
+      setEmail(user.email); // Set the email from user data if logged in
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

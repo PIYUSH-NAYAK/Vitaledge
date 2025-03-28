@@ -36,7 +36,7 @@ const Hero = () => {
           <p className="body-1 max-w-3xl mx-auto mb-6 text-n-2 lg:mb-8">
           Unleash the Power of Health with VitalEdge. Upgrade your well-being with VitalEdge, your trusted online pharmacy
           </p>
-          <Button href="/Services" white>
+          <Button href="/Products" white>
             Get started
           </Button>
         </div>

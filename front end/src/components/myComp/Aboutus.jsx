@@ -1,9 +1,20 @@
-"use client";
+
+import { BackgroundCircles } from "../design/Header";
+import Section from "../mycomp2/Section";
 
 export default function AboutPage() {
   return (
+    <Section
+    className="pt-[4rem] -mt-[5.25rem]"
+    crosses
+    crossesOffset="lg:translate-y-[5.25rem]"
+    customPaddings
+    id="hero"
+  >
+      <BackgroundCircles/>
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <main className="flex-1">
+
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted">
           <div className="container px-4 md:px-6 mx-auto">
@@ -185,9 +196,12 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
+            <BackgroundCircles/>
           </div>
         </section>
       </main>
     </div>
+        </Section>
+    
   );
 }

@@ -1,58 +1,83 @@
-"use client"; // Required for client-side rendering
+"use client";
 import { useState, useEffect } from "react";
 
 export default function WalletConnectButton() {
   const [account, setAccount] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [walletType, setWalletType] = useState(null); // MetaMask or Phantom
 
-  // Restore the account state from local storage on component load
+  // ✅ Restore the account from local storage
   useEffect(() => {
     const savedAccount = localStorage.getItem("connectedAccount");
-    if (savedAccount) {
+    const savedWalletType = localStorage.getItem("walletType");
+    if (savedAccount && savedWalletType) {
       setAccount(savedAccount);
+      setWalletType(savedWalletType);
     }
   }, []);
 
+  // ✅ Detect and Connect Wallet
   const connectWallet = async () => {
-    if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
-      try {
-        setIsConnecting(true); // Indicate connection in progress
+    if (typeof window !== "undefined") {
+      // ✅ Check if Phantom is available
+      if (window.solana && window.solana.isPhantom) {
+        try {
+          setIsConnecting(true);
 
-        // Request accounts from MetaMask
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
+          // Connect to Phantom Wallet
+          const response = await window.solana.connect();
+          const phantomAddress = response.publicKey.toString();
 
-        if (accounts.length > 0) {
-          setAccount(accounts[0]); // Save the connected account
-          localStorage.setItem("connectedAccount", accounts[0]); // Save to local storage
-          console.log("Connected Account:", accounts[0]);
+          setAccount(phantomAddress);
+          setWalletType("phantom");
+          localStorage.setItem("connectedAccount", phantomAddress);
+          localStorage.setItem("walletType", "phantom");
+
+          console.log("✅ Connected to Phantom:", phantomAddress);
+          return;
+        } catch (error) {
+          console.error("❌ Error connecting to Phantom:", error);
         }
-      } catch (error) {
-        if (error.code === 4001) {
-          // User rejected the request
-          console.warn("User rejected connection:", error);
-          alert("You closed MetaMask. Please try connecting again.");
-        } else {
-          // Handle other errors
-          console.error("Error connecting to wallet:", error);
-          alert("An error occurred while connecting. Please try again.");
-        }
-      } finally {
-        setIsConnecting(false); // Reset "Connecting" state
       }
-    } else {
-      // MetaMask is not installed
-      alert("MetaMask is not installed. Please install it to connect your wallet.");
+
+      // ✅ Check if MetaMask is available
+      if (window.ethereum) {
+        try {
+          setIsConnecting(true);
+
+          // Request MetaMask accounts
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            setWalletType("metamask");
+            localStorage.setItem("connectedAccount", accounts[0]);
+            localStorage.setItem("walletType", "metamask");
+
+            console.log("✅ Connected to MetaMask:", accounts[0]);
+          }
+        } catch (error) {
+          console.error("❌ Error connecting to MetaMask:", error);
+        }
+      } else {
+        alert("❗ No compatible wallet found. Install MetaMask or Phantom.");
+      }
     }
+    setIsConnecting(false);
   };
 
+  // ✅ Disconnect Wallet and Clear Data
   const disconnectWallet = () => {
-    setAccount(null); // Clear the account state
-    localStorage.removeItem("connectedAccount"); // Remove from local storage
-    console.log("Wallet disconnected");
+    setAccount(null);
+    setWalletType(null);
+    localStorage.removeItem("connectedAccount");
+    localStorage.removeItem("walletType");
+    console.log("🔌 Wallet disconnected");
   };
 
+  // ✅ Format wallet address
   const formatAccount = (address) => {
     if (address) {
       return `${address.slice(0, 4)}...${address.slice(-4)}`;
@@ -65,7 +90,7 @@ export default function WalletConnectButton() {
       {!account ? (
         <button
           onClick={connectWallet}
-          disabled={isConnecting} // Disable button while connecting
+          disabled={isConnecting}
           className={`btn btn-primary btn-outline ${
             isConnecting ? "bg-gray-400 cursor-not-allowed" : ""
           } text-white py-2 px-4 rounded-lg transition duration-300`}
@@ -75,9 +100,9 @@ export default function WalletConnectButton() {
       ) : (
         <button
           onClick={disconnectWallet}
-          className="btn btn-outline btn-error "
+          className="btn btn-outline btn-error"
         >
-          Disconnect ({formatAccount(account)})
+          Disconnect ({formatAccount(account)} - {walletType?.toUpperCase()})
         </button>
       )}
     </div>

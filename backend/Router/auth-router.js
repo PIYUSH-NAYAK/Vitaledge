@@ -21,13 +21,19 @@ router.route('/login').post(
     main.login
 );
 
-// ✅ Create Batch (Solana Batch Creation)
-router.route('/createBatch').post(main.createBatch);
 
-// ✅ Receive Signed Transaction from Phantom and Submit to Solana
-router.route('/sendTransaction').post(main.sendTransaction);
 
 // ✅ Get Authenticated User Data
 router.route('/auth').get(authMiddleware, main.authUser);
+
+
+router.route('/addProduct').post(
+    authMiddleware,
+    main.addProduct
+);
+router.route('/getProducts').get(
+    authMiddleware,
+    main.getProducts
+);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 const URI = "http://localhost:7777/contact";
 import  {useAuth} from "../../store/auth";
+import Section from "../mycomp2/Section";
 
 const ContactPage = () => {
   const [name, setName] = useState("");
@@ -39,6 +40,13 @@ const ContactPage = () => {
   };
 
   return (
+    <Section
+    className="pt-[4rem] -mt-[5.25rem]"
+    crosses
+    crossesOffset="lg:translate-y-[5.25rem]"
+    customPaddings
+    id="hero"
+  >
     <div className="font-nunito bg-[#0e0c15] min-h-screen p-4 flex flex-col lg:flex-row lg:justify-between text-white">
       {/* Contact Form Section */}
       <div className="flex-1 px-6 lg:pl-16 my-10">
@@ -152,6 +160,7 @@ const ContactPage = () => {
         </div>
       </div>
     </div>
+    </Section>
   );
 };
 

@@ -1,13 +1,11 @@
-import { curve, heroBackground, herobg2, robot } from "../assets";
-import Button from "./Button";
-import Section from "./Section";
-import { BackgroundCircles, BottomLine, Gradient } from "./design/Hero";
-// import { heroIcons } from "../constants";
-// import { ScrollParallax } from "react-just-parallax";
+import { curve  } from "../../assets";
+import Button from "../mycomp2/Button";
+import Section from "../mycomp2/Section";
+import { BackgroundCircles, BottomLine  } from "../design/Hero";
+
 import { useRef } from "react";
-import Generating from "./Generating";
-// import Notification from "./Notification";
-import CompanyLogos from "./CompanyLogos";
+import Generating from "../mycomp2/Generating";
+import CompanyLogos from "../mycomp2/CompanyLogos";
 
 const Hero = () => {
   const parallaxRef = useRef(null);
@@ -53,7 +51,7 @@ const Hero = () => {
                   className="w-full scale-[1.7] translate-y-[8%] md:scale-[1] md:-translate-y-[10%] lg:-translate-y-[15%]"
                   // width={1024}
                   // height={490}
-                  alt="AI"
+                  alt="hi"
                 />
 
                 <Generating className="absolute left-4 right-4 bottom-5 md:left-1/2 md:right-auto md:bottom-8 md:w-[31rem] md:-translate-x-1/2" />

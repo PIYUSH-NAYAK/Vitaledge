@@ -1,10 +1,9 @@
-import Section from "./Section";
-import { smallSphere, stars } from "../assets";
-import Heading from "./Heading";
+import Section from "../mycomp2/Section";
+import { smallSphere, stars } from "../../assets";
+import Heading from "../mycomp2/Heading";
 // import PricingList from "./PricingList";
 // import { LeftLine, RightLine } from "./design/Pricing";
-
-const Pricing = () => {
+const Third = () => {
   return (
     <Section className="overflow-hidden" id="pricing">
       <div className="container relative z-2">
@@ -51,4 +50,4 @@ const Pricing = () => {
   );
 };
 
-export default Pricing;
+export default Third;

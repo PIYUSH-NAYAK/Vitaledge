@@ -2,21 +2,21 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import ButtonGradient from "./assets/svg/ButtonGradient";
 // import Benefits from "./components/Benefits";
 // import Collaboration from "./components/Collaboration";
-import ContactPage from "./components/ContactUs";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
+import ContactPage from "./components/myComp/ContactUs";
+import Footer from "./components/mycomp2/Footer";
+import Header from "./components/mycomp2/Header";
 // import Hero from "./components/Hero";
 // import Pricing from "./components/Pricing";
 // import Roadmap from "./components/Roadmap";
 // import Services from "./components/Services";
-import { Homepage } from "./components/Homepage";
-import Login from "./components/Login";
+import { Homepage } from "./components/myComp/Homepage";
+import Login from "./components/myComp/Login";
 // import Signup from "./components/Signup";
 import Products from "./comp2/Products";
-import AboutPage from "./components/Aboutus";
-import SignupForm from "./components/Signup";
-import Error404 from "./components/errorPage";
-import Logout from "./components/Logout";
+import AboutPage from "./components/myComp/Aboutus";
+import SignupForm from "./components/myComp/Signup";
+import Error404 from "./components/myComp/errorPage";
+import Logout from "./components/myComp/Logout";
 
 
 const App = () => {

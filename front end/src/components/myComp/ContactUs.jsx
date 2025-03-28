@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 const URI = "http://localhost:7777/contact";
-import  {useAuth} from "../store/auth";
+import  {useAuth} from "../../store/auth";
 
 const ContactPage = () => {
   const [name, setName] = useState("");

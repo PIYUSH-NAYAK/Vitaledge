@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import InputControls from "../comp2/Inputcontrols";
-import { useAuth } from "../store/auth";
+import InputControls from "../../comp2/Inputcontrols";
+import { useAuth } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
 const URI = "http://localhost:7777/register";
 

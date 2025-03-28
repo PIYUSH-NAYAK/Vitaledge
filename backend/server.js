@@ -1,36 +1,39 @@
 require('dotenv').config();
-const cors=require('cors');
-
-
-
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const router = require('./Router/auth-router');
+const connectDB = require('./Utils/db');
 
-
-app.use(cors());
+// ✅ CORS Configuration
 var corsOptions = {
-    origin: 'http://localhost:5000/',
-    methods : "GET,HEAD,PUT,PATCH,POST,DELETE",
-    Credentials : true,
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  }
+    origin: [
+        'http://localhost:3000', // For Phantom/Frontend testing
+        'http://localhost:5000', // For Postman testing
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200,
+};
 
-const connectDB =require('./Utils/db');
+// ✅ Apply CORS middleware
+app.use(cors(corsOptions));
 
-//Middlewares
+// ✅ Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Use Routes
 app.use('/', router);
+
+// ✅ Default route
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
+// ✅ Connect to DB and start the server
 connectDB().then(() => {
-
-app.listen(7777, () => {
-    console.log('Server is running on port 7777');
+    app.listen(7777, () => {
+        console.log('✅ Server is running on port 7777');
+    });
 });
-});
-

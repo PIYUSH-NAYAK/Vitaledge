@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // For navigation after successful login
-import InputControls from "../comp2/Inputcontrols";
-import {useAuth} from "../store/auth";
+import InputControls from "../../comp2/Inputcontrols";
+import {useAuth} from "../../store/auth";
 
 
 const URI = "http://localhost:7777/login";

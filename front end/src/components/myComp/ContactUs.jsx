@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react";
-const URI = "http://localhost:7777/contact";
+const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/contact`;
 import  {useAuth} from "../../store/auth";
 import Section from "../mycomp2/Section";
 

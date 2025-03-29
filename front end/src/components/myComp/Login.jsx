@@ -93,14 +93,14 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="flex justify-center mt-4">
+          {/* <div className="flex justify-center mt-4">
             <button
               onClick={() => console.log("Login with Google")}
               className="w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-200 bg-gray-800 hover:bg-gray-700 transition"
             >
               Login with Google
             </button>
-          </div>
+          </div> */}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-400">
@@ -109,9 +109,9 @@ const Login = () => {
                 Sign up
               </a>
             </p>
-            <a href="/forgot-password" className="text-sm text-teal-500 hover:text-teal-400 underline">
+            {/* <a href="/forgot-password" className="text-sm text-teal-500 hover:text-teal-400 underline">
               Forgot your password?
-            </a>
+            </a> */}
           </div>
         </div>
       </div>

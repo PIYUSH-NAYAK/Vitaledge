@@ -25,6 +25,40 @@ const Bill = () => {
   const { signature, amountInSol, amountInInr, recipient, items, date } =
     transaction;
 
+  // ✅ Generate and Download Receipt as TXT
+  const downloadReceipt = () => {
+    const content = `
+🧾 Payment Receipt
+------------------------------
+Transaction ID: ${signature}
+Payment Date: ${date}
+Recipient: ${recipient}
+Amount Paid: ${amountInSol} SOL (~₹${amountInInr})
+
+📦 Order Summary:
+${items
+  .map(
+    (item) =>
+      `- ${item.title} (x${item.quantity}): ₹${(
+        item.price * item.quantity
+      ).toFixed(2)}`
+  )
+  .join("\n")}
+
+💰 Grand Total: ₹${amountInInr} (~${amountInSol} SOL)
+------------------------------
+Thank you for shopping with us! 😊
+    `;
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Receipt_${date}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-black flex items-center justify-center p-8">
       <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-4xl">
@@ -34,17 +68,18 @@ const Bill = () => {
 
         {/* ✅ Transaction Details */}
         <div className="mb-4">
-          <p className="text-gray-700 dark:text-gray-200">
+          <p className="text-gray-700 dark:text-gray-200 break-all max-w-full">
             <strong>Transaction ID:</strong>{" "}
             <a
               href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
+              className="text-blue-500 hover:underline break-all"
             >
               {signature}
             </a>
           </p>
+
           <p className="text-gray-700 dark:text-gray-200">
             <strong>Recipient:</strong> {recipient}
           </p>
@@ -72,7 +107,10 @@ const Bill = () => {
             </thead>
             <tbody className="text-gray-700 dark:text-gray-300">
               {items.map((item) => (
-                <tr key={item._id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                <tr
+                  key={item._id}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
                   <td className="px-6 py-4">{item.title}</td>
                   <td className="px-6 py-4 text-center">{item.quantity}</td>
                   <td className="px-6 py-4 text-center">₹{item.price}</td>
@@ -92,8 +130,17 @@ const Bill = () => {
           </h2>
         </div>
 
-        {/* ✅ Back to Home Button */}
-        <div className="mt-8 text-center">
+        {/* ✅ Buttons */}
+        <div className="mt-8 flex justify-center space-x-4">
+          {/* 🔽 Download Button */}
+          <button
+            onClick={downloadReceipt}
+            className="px-6 py-3 bg-green-600 text-white text-lg font-bold uppercase rounded hover:bg-green-700"
+          >
+            ⬇️ Download Receipt
+          </button>
+
+          {/* 🏠 Back to Home Button */}
           <button
             onClick={() => (window.location.href = "/")}
             className="px-6 py-3 bg-blue-600 text-white text-lg font-bold uppercase rounded hover:bg-blue-700"

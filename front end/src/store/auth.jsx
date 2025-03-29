@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
   const userAuthentication = async () => {
     if (!token) return; // Don't fetch user data if there's no token
     try {
-      const response = await fetch("http://localhost:7777/auth", {
+      const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/auth`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

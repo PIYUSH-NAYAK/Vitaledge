@@ -88,7 +88,7 @@ export default function Checkout() {
     }
 
     const amountInSol = calculateTotalInSol();
-    const recipient = "5MUakabnwfLiN7vxD1p1XLwbBZML3Dpy8JecGcT7KvvL"; // 🎯 Replace with your SOL address
+    const recipient = "5MUakabnwfLiN7vxD1p1XLwbBZML3Dpy8JecGcT7KvvL";
 
     try {
       if (phantomProvider && walletAddress) {
@@ -110,16 +110,38 @@ export default function Checkout() {
         transaction.feePayer = new solanaWeb3.PublicKey(walletAddress);
 
         // ✅ Sign and send the transaction
-        const signedTransaction = await phantomProvider.signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+        // ✅ Sign and send the transaction
+        const signedTransaction = await phantomProvider.signTransaction(
+          transaction
+        );
+        const signature = await connection.sendRawTransaction(
+          signedTransaction.serialize()
+        );
         await connection.confirmTransaction(signature, "confirmed");
 
+        // ✅ Save Transaction Data in Local Storage
+        const transactionDetails = {
+          signature,
+          amountInSol: amountInSol,
+          amountInInr: getCartTotal().toFixed(2),
+          recipient,
+          items: cartItems,
+          date: new Date().toLocaleString(),
+        };
+
+        localStorage.setItem(
+          "transactionDetails",
+          JSON.stringify(transactionDetails)
+        );
+
+        // ✅ Payment successful message
         console.log("✅ Transaction Successful:", signature);
         toast.success(`✅ Payment of ${amountInSol} SOL successful!`);
         clearCart(); // Clear cart after payment
 
+        // ✅ Redirect to the Bill Page After Payment
         setTimeout(() => {
-          window.location.href = "/"; // Redirect to homepage after payment
+          window.location.href = "/bill"; // Redirect to the bill page
         }, 2000);
       } else {
         toast.error(

@@ -10,7 +10,7 @@ var corsOptions = {
     origin: [
         'http://localhost:3000', // For Phantom/Frontend testing
         'http://localhost:5000', // For Postman testing
-        // 'http://localhost:5173', // For Postman testing
+        'http://localhost:5173', // For Postman testing
         'https://vitaledge-pi.vercel.app',
         'https://vitaledge-piyush-nayaks-projects.vercel.app',
         'https://vitaledge-git-main-piyush-nayaks-projects.vercel.app'

@@ -10,6 +10,10 @@ export const CartProvider = ({ children }) => {
       : []
   );
 
+  const [showModal, setShowModal] = useState(false); // ✅ Global modal state
+
+  const toggleCartModal = () => setShowModal((prev) => !prev); // ✅ Toggle function
+
   const addToCart = (item) => {
     const isItemInCart = cartItems.find((cartItem) => cartItem._id === item._id);
 
@@ -72,6 +76,8 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         getCartTotal,
+        showModal,
+        toggleCartModal,
       }}
     >
       {children}

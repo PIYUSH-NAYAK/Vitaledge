@@ -4,7 +4,7 @@ import InputControls from "../../comp2/Inputcontrols";
 import {useAuth} from "../../store/auth";
 
 
-const URI = "http://localhost:7777/login";
+const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/login`;
 
 const Login = () => {
   const [email, setEmail] = useState("");

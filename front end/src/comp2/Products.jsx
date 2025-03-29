@@ -19,7 +19,7 @@ export default function Products() {
   // ✅ Fetch products from MongoDB
   async function getProducts() {
     try {
-      const response = await fetch("http://localhost:7777/getProducts", {
+      const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/getProducts`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

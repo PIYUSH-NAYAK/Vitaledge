@@ -131,23 +131,23 @@ const SignupForm = () => {
             </button>
           </div>
         </form>
-        <div className="mt-6">
+        <div className="mt-6">  
           <div className="relative">
-            <div className="absolute inset-0 flex items-center">
+            {/* <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-600"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
+            </div> */}
+            {/* <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-gray-900 text-gray-400">Or continue with</span>
-            </div>
+            </div> */}
           </div>
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <button
               onClick={() => console.log("Login with Google")}
               className="w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-200 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-150 ease-in-out"
             >
               Login with Google
             </button>
-          </div>
+          </div> */}
         </div>
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-400">

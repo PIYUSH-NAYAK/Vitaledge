@@ -18,6 +18,7 @@ import SignupForm from "./components/myComp/Signup";
 import Error404 from "./components/myComp/errorPage";
 import Logout from "./components/myComp/Logout";
 import Checkout from "./components/myComp/Checkout";
+import Bill from "./components/myComp/Bill";
 
 
 const App = () => {
@@ -33,7 +34,8 @@ const App = () => {
           <Route path='/products' element={<Products />} />
           <Route path='/aboutus' element={<AboutPage />} />
           <Route path='/logout' element={<Logout />} />
-          <Route path ='Checkout' element={<Checkout/>} />
+          <Route path ='/Checkout' element={<Checkout/>} />
+          <Route path='/bill' element={<Bill />} />
           <Route path='*' element={<Error404/>} />
         </Routes>
         <Footer />

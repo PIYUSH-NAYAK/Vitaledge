@@ -4,16 +4,17 @@ import Cart from "./Cart.jsx";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Section from "../components/mycomp2/Section.jsx";
-import { BackgroundCircles, BottomLine } from "../components/design/Hero.jsx";
+import { BottomLine } from "../components/design/Hero.jsx";
 
 export default function Products() {
-  const [showModal, setshowModal] = useState(false);
   const [products, setProducts] = useState([]);
-  const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
-
-  const toggle = () => {
-    setshowModal(!showModal);
-  };
+  const {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    showModal,
+    toggleCartModal,
+  } = useContext(CartContext);
 
   // ✅ Fetch products from MongoDB
   async function getProducts() {
@@ -51,10 +52,6 @@ export default function Products() {
       pauseOnHover: true,
       draggable: true,
       theme: "colored",
-      style: {
-        backgroundColor: "#fff",
-        color: "#000",
-      },
     });
 
   const notifyRemovedFromCart = (item) =>
@@ -66,10 +63,6 @@ export default function Products() {
       pauseOnHover: true,
       draggable: true,
       theme: "colored",
-      style: {
-        backgroundColor: "#000",
-        color: "#fff",
-      },
     });
 
   const handleRemoveFromCart = (product) => {
@@ -88,30 +81,25 @@ export default function Products() {
       {/* ✅ Parent Container with Relative for Centering Background */}
       <div className="relative flex flex-col justify-center bg-[#0e0c15] min-h-screen">
         <ToastContainer />
-
-        {/* ✅ Header and Cart Button */}
         <div className="flex justify-between items-center px-20 py-5 relative z-10">
           <h1 className="text-2xl uppercase font-bold mt-10 text-center mb-10 text-white">
             Shop
           </h1>
-          {!showModal && (
-            <button
-              className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
-              onClick={toggle}
-            >
-              Cart ({cartItems.length})
-            </button>
-          )}
+          <button
+            className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+            onClick={toggleCartModal}
+          >
+            Cart ({cartItems.length})
+          </button>
         </div>
 
-        {/* ✅ Product Grid with Increased Gap */}
+        {/* ✅ Product Grid */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-16 px-10 relative z-10">
           {products.map((product) => (
             <div
               key={product._id}
               className="bg-[#0e0c15] shadow-md rounded-lg px-10 py-10"
             >
-              {/* ✅ Product Image */}
               <img
                 src={product.imageUrl}
                 alt={product.title}
@@ -127,7 +115,7 @@ export default function Products() {
                 <p className="mt-2 text-gray-300">₹{product.price}</p>
               </div>
 
-              {/* ✅ Add to Cart / Remove Buttons */}
+              {/* ✅ Add/Remove Cart Buttons */}
               <div className="mt-6 flex justify-between items-center">
                 {!cartItems.find((item) => item._id === product._id) ? (
                   <button
@@ -143,18 +131,6 @@ export default function Products() {
                   <div className="flex gap-4 items-center">
                     <button
                       className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
-                      onClick={() => addToCart(product)}
-                    >
-                      +
-                    </button>
-                    <p className="text-gray-400">
-                      {
-                        cartItems.find((item) => item._id === product._id)
-                          ?.quantity
-                      }
-                    </p>
-                    <button
-                      className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
                       onClick={() => {
                         const cartItem = cartItems.find(
                           (item) => item._id === product._id
@@ -168,24 +144,29 @@ export default function Products() {
                     >
                       -
                     </button>
+                    <p className="text-gray-400">
+                      {
+                        cartItems.find((item) => item._id === product._id)
+                          ?.quantity
+                      }
+                    </p>
+                    <button
+                      className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+                      onClick={() => addToCart(product)}
+                    >
+                      +
+                    </button>
                   </div>
                 )}
               </div>
-              
             </div>
           ))}
         </div>
-       
-       {/* <BackgroundCircles/> */}
-
-        {/* ✅ Cart Modal */}
-       
 
         {/* ✅ Bottom Line Design */}
         <BottomLine />
       </div>
-      <Cart showModal={showModal} toggle={toggle} />
-
+      <Cart showModal={showModal} toggle={toggleCartModal} />
     </Section>
   );
 }

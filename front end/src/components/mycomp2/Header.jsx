@@ -79,12 +79,14 @@ const Header = () => {
               {/* ✅ Auth Buttons inside Hamburger Menu */}
               {loggedIn ? (
                 <>
+                <Button className="mt-4 lg:hidden">
+                    <WalletConnectButton />
+                  </Button>
                   <Button className="mt-4 lg:hidden" href="/logout">
                     Logout
                   </Button>
-                  <Button className="mt-4 lg:hidden">
-                    <WalletConnectButton />
-                  </Button>
+                 
+                  
                 </>
               ) : (
                 <>
@@ -120,6 +122,7 @@ const Header = () => {
                 <Button className="hidden lg:flex">
                   <WalletConnectButton />
                 </Button>
+                
                 <Button className="hidden lg:flex" href="/logout">
                   Logout
                 </Button>

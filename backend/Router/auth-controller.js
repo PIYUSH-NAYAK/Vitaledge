@@ -39,7 +39,7 @@ const register = async (req, res) => {
         const salt = 10;
         const hashedPass = await bcrypt.hash(password, salt);
         const newUser = await user.create({ name, email, password: hashedPass, confirmPassword: hashedPass });
-        res.status(201).json({ msg: "User registered successfully", token: await newUser.genToken(), userId: newUser._id });
+        res.status(201).json({ msg: "User registered successfully"});
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ msg: "Server error during registration", error: error.message });
@@ -99,13 +99,23 @@ const addProduct = async (req, res) => {
 
 // ✅ Get all products
 const getProducts = async (req, res) => {
+    const { page = 1, limit = 8 } = req.query; // Default: page 1, 8 products per page
+    const skip = (page - 1) * limit;
+
     try {
-        const products = await Product.find({});
-        res.json({ products });
+        const products = await Product.find().skip(skip).limit(parseInt(limit));
+        const total = await Product.countDocuments();
+
+        res.json({
+            products,
+            total,
+            hasMore: total > page * limit, // Check if more products exist
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching products', error });
+        res.status(500).json({ message: "Error fetching products", error });
     }
 };
+
 
 module.exports = {
     home,

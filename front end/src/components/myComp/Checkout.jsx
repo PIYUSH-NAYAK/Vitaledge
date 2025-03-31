@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
 import { CartContext } from "../../context/cart2.jsx";
-import { toast } from "react-toastify";
+import { toast ,ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as solanaWeb3 from "@solana/web3.js";
 import { Buffer } from "buffer";
+import Section from "../mycomp2/Section.jsx";
 
 // ✅ Polyfill Buffer for Browser
 if (typeof window !== "undefined") {
@@ -142,7 +143,7 @@ export default function Checkout() {
         // ✅ Redirect to the Bill Page After Payment
         setTimeout(() => {
           window.location.href = "/bill"; // Redirect to the bill page
-        }, 2000);
+        }, 3000);
       } else {
         toast.error(
           "❌ Phantom Wallet not found. Please install and try again."
@@ -169,6 +170,25 @@ export default function Checkout() {
   };
 
   return (
+    <Section
+    className="pt-[4rem] -mt-[5.25rem]"
+    crosses
+    crossesOffset="lg:translate-y-[5.25rem]"
+    customPaddings
+    id="hero"
+  >
+    {/* ✅ Toast Container for Notifications */}
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-black p-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">
         Checkout
@@ -287,5 +307,6 @@ export default function Checkout() {
         </div>
       )}
     </div>
+    </Section>
   );
 }

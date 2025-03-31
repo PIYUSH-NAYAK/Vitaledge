@@ -35,13 +35,11 @@ const SignupForm = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
+  
     const signupData = { name, email, password, confirmPassword };
-    // console.log("i am her 1")
-
+  
     try {
-      
-      const response= await fetch(URI, {
+      const response = await fetch(URI, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,37 +47,43 @@ const SignupForm = () => {
         body: JSON.stringify(signupData),
       });
       const data = await response.json();
-      // console.log("i am here 2")
-
-      if(response.ok){
+  
+      if (response.ok) {
         console.log("Signup Successful");
         storeToken(data.token);
-        nav('/login');
-
-
+        nav("/login");
+  
         setName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
         setErrorMessage("");
-      }
-      else{
-        console.log("Signup Failed");
-        if(data.message){
+      } else {
+        // Set error message with priority
+        console.log(data);
+        if (data.message) {
           console.log(data.message);
+          const lowerCaseMsg = data.message.toLowerCase();
+          
+          // Priority order: email > password > confirmPassword > name
+          if (lowerCaseMsg.includes("email")) {
+            setErrorMessage(data.message);
+          } else if (lowerCaseMsg.includes("password")) {
+            setErrorMessage(data.message);
+          } else if (lowerCaseMsg.includes("name")) {
+            setErrorMessage(data.message);
+          } else {
+            setErrorMessage(data.message);
+          }
+        } else {
+          setErrorMessage(data.error || "Signup failed");
+        }
       }
-      setErrorMessage(data.msg || "Signup failed");
-      }
-      
     } catch (error) {
       console.log("Registration Failed");
       console.log(error);
-      
+      setErrorMessage("Registration failed. Please try again.");
     }
-
-
-    // Add your signup logic here
-    // console.log("Signup with:", { name, email, password });
   };
 
   return (
@@ -93,6 +97,9 @@ const SignupForm = () => {
           <h2 className=" text-center text-3xl font-extrabold text-white">Sign Up</h2>
           <p className="mt-2 text-center text-sm text-gray-400">Create your account</p>
         </div>
+        {errorMessage && (
+        <p className="mt-4 text-red-500 text-sm">{errorMessage}</p>
+      )}
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <InputControls
             label="Name"

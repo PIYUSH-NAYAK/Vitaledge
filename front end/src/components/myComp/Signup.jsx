@@ -1,37 +1,25 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import InputControls from "../../comp2/Inputcontrols";
-import { useAuth } from "../../store/auth";
+// import { useAuth } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import styles for Toastify
+import Section from "../mycomp2/Section";
 const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/register`;
 
 
-// const InputControls = ({ label, type, placeholder, value, onChange }) => (
-//   <div className="mb-4">
-//     <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor={label}>
-//       {label}
-//     </label>
-//     <input
-//       className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-gray-800 leading-tight focus:outline-none focus:shadow-outline placeholder-gray-500"
-//       id={label}
-//       type={type}
-//       placeholder={placeholder}
-//       value={value}
-//       onChange={onChange}
-//     />
-//   </div>
-// );
 
 const SignupForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  // const [errorMessage, setErrorMessage] = useState("");
   const nav = useNavigate();
 
 
-  const {storeToken} = useAuth();
+  // const {storeToken} = useAuth();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -49,15 +37,18 @@ const SignupForm = () => {
       const data = await response.json();
   
       if (response.ok) {
-        console.log("Signup Successful");
-        storeToken(data.token);
+        toast.dismiss();  // Dismiss any existing toasts
+        setTimeout(() => {
+          toast.success("Signup successful! Redirecting...");
+        }, 100); // Delay the toast by 100ms        console.log("Signup Successful");
+        // storeToken(data.token);
         nav("/login");
   
         setName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        setErrorMessage("");
+        // setErrorMessage("");
       } else {
         // Set error message with priority
         console.log(data);
@@ -67,26 +58,55 @@ const SignupForm = () => {
           
           // Priority order: email > password > confirmPassword > name
           if (lowerCaseMsg.includes("email")) {
-            setErrorMessage(data.message);
+            toast.error(data.message||data.error)
+            // setErrorMessage(data.message);
           } else if (lowerCaseMsg.includes("password")) {
-            setErrorMessage(data.message);
+            toast.error(data.message||data.error)
+            // setErrorMessage(data.message);
           } else if (lowerCaseMsg.includes("name")) {
-            setErrorMessage(data.message);
+            toast.error(data.message||data.error)
+
+            // setErrorMessage(data.message);
           } else {
-            setErrorMessage(data.message);
+            toast.error(data.message||data.error)
+
+            // setErrorMessage(data.message);
           }
         } else {
-          setErrorMessage(data.error || "Signup failed");
+          toast.error(data.message||data.error)
+
+          // setErrorMessage(data.error || "Signup failed");
         }
       }
     } catch (error) {
       console.log("Registration Failed");
       console.log(error);
-      setErrorMessage("Registration failed. Please try again.");
+      toast.error("Registration Failed");
+
+      // setErrorMessage("Registration failed. Please try again.");
     }
   };
 
   return (
+    <Section
+    className="pt-[4rem] -mt-[5.25rem]"
+    crosses
+    crossesOffset="lg:translate-y-[5.25rem]"
+    customPaddings
+    id="hero"
+  >
+    {/* ✅ Toast Container for Notifications */}
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
     <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       
       <div className="relative z-1 p-1   rounded-2xl bg-conic-gradient">
@@ -97,9 +117,7 @@ const SignupForm = () => {
           <h2 className=" text-center text-3xl font-extrabold text-white">Sign Up</h2>
           <p className="mt-2 text-center text-sm text-gray-400">Create your account</p>
         </div>
-        {errorMessage && (
-        <p className="mt-4 text-red-500 text-sm">{errorMessage}</p>
-      )}
+       
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <InputControls
             label="Name"
@@ -167,6 +185,7 @@ const SignupForm = () => {
       </div>
     </div>
     </div>
+    </Section>
   );
 };
 

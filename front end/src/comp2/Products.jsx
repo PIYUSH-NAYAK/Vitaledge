@@ -1,74 +1,53 @@
 import { useState, useEffect, useContext } from "react";
 import { CartContext } from "../context/cart2.jsx";
+import Section from "../components/mycomp2/Section.jsx";
+import Button from "../components/mycomp2/Button.jsx";
 import Cart from "./Cart.jsx";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Section from "../components/mycomp2/Section.jsx";
-import { BottomLine } from "../components/design/Hero.jsx";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
-  const {
-    cartItems,
-    addToCart,
-    removeFromCart,
-    showModal,
-    toggleCartModal,
-  } = useContext(CartContext);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 8; // Items per page
 
-  // ✅ Fetch products from MongoDB
-  async function getProducts() {
+  const { cartItems, addToCart, removeFromCart, showModal, toggleCartModal } =
+    useContext(CartContext);
+
+  // ✅ Fetch Products from Backend
+  const getProducts = async () => {
     try {
-      const response = await fetch("http://localhost:7777/getProducts", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BACKEND_URL}/getProducts?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
         setProducts(data.products);
+        setHasMore(data.hasMore);
+        toast.success("✅ Products loaded successfully!");
       } else {
         console.error("❌ Failed to fetch products");
+        toast.error("❌ Failed to load products. Try again!");
       }
     } catch (error) {
       console.error("❌ Error fetching products:", error);
+      toast.error("❌ Error loading products. Please try again later.");
     }
-  }
+  };
 
+  // ✅ Fetch Products on Initial Render & Page Change
   useEffect(() => {
     getProducts();
-  }, []);
-
-  // ✅ Toast notifications
-  const notifyAddedToCart = (item) =>
-    toast.success(`${item.title} added to cart!`, {
-      position: "top-center",
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-    });
-
-  const notifyRemovedFromCart = (item) =>
-    toast.error(`${item.title} removed from cart!`, {
-      position: "top-center",
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-    });
-
-  const handleRemoveFromCart = (product) => {
-    removeFromCart(product);
-    notifyRemovedFromCart(product);
-  };
+  }, [page]);
 
   return (
     <Section
@@ -78,15 +57,26 @@ export default function Products() {
       customPaddings
       id="hero"
     >
-      {/* ✅ Parent Container with Relative for Centering Background */}
+      {/* ✅ Toast Container for Notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       <div className="relative flex flex-col justify-center bg-[#0e0c15] min-h-screen">
-        <ToastContainer />
         <div className="flex justify-between items-center px-20 py-5 relative z-10">
           <h1 className="text-2xl uppercase font-bold mt-10 text-center mb-10 text-white">
             Shop
           </h1>
           <button
-            className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+            className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none"
             onClick={toggleCartModal}
           >
             Cart ({cartItems.length})
@@ -94,7 +84,7 @@ export default function Products() {
         </div>
 
         {/* ✅ Product Grid */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-16 px-10 relative z-10">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16 mx-12 relative z-10 ">
           {products.map((product) => (
             <div
               key={product._id}
@@ -103,7 +93,8 @@ export default function Products() {
               <img
                 src={product.imageUrl}
                 alt={product.title}
-                className="rounded-md h-48 w-full object-cover"
+                className="rounded-3xl h-48 w-full object-cover bg-conic-gradient p-1"
+                loading="lazy"
               />
               <div className="mt-4">
                 <h1 className="text-lg uppercase font-bold text-white">
@@ -115,31 +106,25 @@ export default function Products() {
                 <p className="mt-2 text-gray-300">₹{product.price}</p>
               </div>
 
-              {/* ✅ Add/Remove Cart Buttons */}
+              {/* ✅ Add/Remove from Cart Buttons */}
               <div className="mt-6 flex justify-between items-center">
                 {!cartItems.find((item) => item._id === product._id) ? (
-                  <button
-                    className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+                  <Button
+                    className="px-4 py-2 bg-[#0e0c15] text-white text-xs font-bold uppercase rounded hover:bg-gray-700"
                     onClick={() => {
                       addToCart(product);
-                      notifyAddedToCart(product);
+                      toast.success(`${product.title} added to cart!`);
                     }}
                   >
                     Add to cart
-                  </button>
+                  </Button>
                 ) : (
                   <div className="flex gap-4 items-center">
                     <button
-                      className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+                      className="px-4 py-2 bg-[#0e0c15] text-white text-xs font-bold uppercase rounded hover:bg-gray-700"
                       onClick={() => {
-                        const cartItem = cartItems.find(
-                          (item) => item._id === product._id
-                        );
-                        if (cartItem?.quantity === 1) {
-                          handleRemoveFromCart(product);
-                        } else {
-                          removeFromCart(product);
-                        }
+                        removeFromCart(product);
+                        toast.warn(`${product.title} removed from cart!`);
                       }}
                     >
                       -
@@ -151,8 +136,11 @@ export default function Products() {
                       }
                     </p>
                     <button
-                      className="px-4 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
-                      onClick={() => addToCart(product)}
+                      className="px-4 py-2 bg-[#0e0c15] text-white text-xs font-bold uppercase rounded hover:bg-gray-700"
+                      onClick={() => {
+                        addToCart(product);
+                        // toast.success(`Increased quantity for ${product.title}`);
+                      }}
                     >
                       +
                     </button>
@@ -163,9 +151,26 @@ export default function Products() {
           ))}
         </div>
 
-        {/* ✅ Bottom Line Design */}
-        <BottomLine />
+        {/* ✅ Pagination Buttons */}
+        <div className="flex justify-center mt-10 space-x-4">
+          <Button
+            className="px-6 py-2 bg-[#0e0c15] text-white text-xs font-bold uppercase rounded hover:bg-gray-700 disabled:opacity-50"
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            className="px-6 py-2 bg-[#0e0c15] text-white text-xs font-bold uppercase rounded hover:bg-gray-700 disabled:opacity-50"
+            onClick={() => setPage((prev) => prev + 1)}
+            disabled={!hasMore}
+          >
+            Next
+          </Button>
+        </div>
       </div>
+
+      {/* ✅ Cart Modal */}
       <Cart showModal={showModal} toggle={toggleCartModal} />
     </Section>
   );

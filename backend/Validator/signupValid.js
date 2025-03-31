@@ -2,7 +2,7 @@ const {z} = require('zod');
 
 const signupValid = z.object({
     name: z.string().min(3,{message: "Must be atleast 3 characters"}).max(50,{message: " name must be under 50 character"}).trim(),
-    email: z.string().email({message: "Invalid email"}).trim().refine(
+    email: z.string().email({message: "Please enter a valid email address"}).trim().refine(
         (email) =>
           email.endsWith("@gmail.com") || email.endsWith("@iiitl.ac.in"),
         {

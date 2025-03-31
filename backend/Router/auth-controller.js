@@ -39,7 +39,7 @@ const register = async (req, res) => {
         const salt = 10;
         const hashedPass = await bcrypt.hash(password, salt);
         const newUser = await user.create({ name, email, password: hashedPass, confirmPassword: hashedPass });
-        res.status(201).json({ msg: "User registered successfully", token: await newUser.genToken(), userId: newUser._id });
+        res.status(201).json({ msg: "User registered successfully"});
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ msg: "Server error during registration", error: error.message });

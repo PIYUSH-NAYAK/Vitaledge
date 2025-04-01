@@ -56,7 +56,7 @@ const Login = () => {
   };
 
   return (
-    <Section className="pt-[4rem] -mt-[5.25rem]" crosses>
+    <Section className="pt-[6rem] -mt-[12rem]" crosses>
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -69,17 +69,17 @@ const Login = () => {
         pauseOnHover
       />
       
-      <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen  flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient">
-          <div className="max-w-md w-full space-y-8 bg-gray-900 p-10 rounded-xl shadow-md">
-            <div className="text-center">
-              <h2 className="text-3xl font-extrabold text-white">Login</h2>
+          <div className="max-w-md w-auto space-y-8 bg-gray-900 p-16 rounded-xl shadow-md">
+            <div className="text-center pt-2 space-y-5">
+              <h2 className="text-4xl font-extrabold -mt-[2rem] text-white">Login</h2>
               <p className="mt-2 text-sm text-gray-400">
                 Enter your email below to login to your account.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-10">
               <InputControls
                 label="Email"
                 placeholder="Enter your email"

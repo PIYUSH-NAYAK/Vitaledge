@@ -5,7 +5,7 @@ import Footer from "./components/mycomp2/Footer";
 import Header from "./components/mycomp2/Header";
 import { Homepage } from "./components/myComp/Homepage";
 import Login from "./components/myComp/Login";
-import Products from "./comp2/Products"; // ✅ Ensure correct path
+import Products from "./comp2/Products" // ✅ Ensure correct path
 import AboutPage from "./components/myComp/Aboutus";
 import SignupForm from "./components/myComp/Signup";
 import Error404 from "./components/myComp/errorPage";
@@ -13,23 +13,50 @@ import Logout from "./components/myComp/Logout";
 import Checkout from "./components/myComp/Checkout";
 import Bill from "./components/myComp/Bill";
 import { useAuth } from "./store/auth"; // ✅ Fixed import
+import { ToastContainer, toast } from "react-toastify";
 
 // Protected Route Component
+import { useEffect, useState } from "react";
+
 const ProtectedRoute = ({ element }) => {
   const { loggedIn } = useAuth();
-  return loggedIn ? element : <Navigate to="/login" />;
+  const [redirect, setRedirect] = useState(false);
+
+  useEffect(() => {
+    if (!loggedIn) {
+      toast.info("Please login to access this page");
+      setTimeout(() => setRedirect(true), 10);
+    }
+  }, [loggedIn]);
+
+  if (redirect) {
+    return <Navigate to="/login" />;
+  }
+
+  return loggedIn ? element : null;
 };
+
 
 const App = () => {
   const { loggedIn } = useAuth(); // ✅ Centralized auth check
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
         <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
-          {/* <Route path="/contact" element={<ContactPage />} />{" "} */}
           <Route
             path="/contact"
             element={<ProtectedRoute element={<ContactPage />} />}
@@ -51,7 +78,6 @@ const App = () => {
             path="/aboutus"
             element={<ProtectedRoute element={<AboutPage />} />}
           />
-          {/* <Route path="/aboutus" element={<AboutPage />} /> */}
           {/* Protected Routes */}
           <Route
             path="/logout"
@@ -61,7 +87,10 @@ const App = () => {
             path="/checkout"
             element={<ProtectedRoute element={<Checkout />} />}
           />
-          <Route path="/bill" element={<ProtectedRoute element={<Bill />} />} />
+          <Route
+            path="/bill"
+            element={<ProtectedRoute element={<Bill />} />}
+          />
           {/* 404 Page */}
           <Route path="*" element={<Error404 />} />
         </Routes>

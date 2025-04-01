@@ -33,7 +33,7 @@ export default function Products() {
         const data = await response.json();
         setProducts(data.products);
         setHasMore(data.hasMore);
-        toast.success("✅ Products loaded successfully!");
+        // toast.success("✅ Products loaded successfully!");
       } else {
         console.error("❌ Failed to fetch products");
         toast.error("❌ Failed to load products. Try again!");

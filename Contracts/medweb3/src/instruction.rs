@@ -8,8 +8,12 @@ pub enum MedWeb3Instruction {
     CreateBatch { batch_id: String, manufacturer: String },
 
     /// Transfer ownership of a batch
-    /// Fields: [batch_id, new_owner]
-    TransferOwnership { batch_id: String, new_owner: String },
+    /// Fields: [batch_id, new_owner, signature]
+    TransferOwnership { 
+        batch_id: String, 
+        new_owner: String, 
+        signature: [u8; 64] // Ed25519 signature 
+    },
 
     /// Verify a batch's traceability
     /// Fields: [batch_id]

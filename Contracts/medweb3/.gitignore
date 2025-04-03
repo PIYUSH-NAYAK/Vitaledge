@@ -1,0 +1,33 @@
+git add .gitignore
+git commit -m "Add .gitignore for Rust/Solana project"# Rust / Cargo build artifacts
+target/
+Cargo.lock
+
+# Solana test validator ledger
+test-ledger/
+
+# Local keypair files (ensure no critical config JSONs are accidentally ignored)
+*.json
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Dependency directories (if using JS/TS clients)
+node_modules/
+
+# Other temporary files
+*~

@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaTwitter, FaFacebook, FaGoogle, FaInstagram, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
 const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/contact`;
-import { useAuth } from "../../store/auth";
+import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase auth
 import Section from "../mycomp2/Section";
+import InputControls from "../../comp2/Inputcontrols";
 
 const ContactPage = () => {
   const [name, setName] = useState("");
@@ -11,8 +15,8 @@ const ContactPage = () => {
 
   useEffect(() => {
     if (user) {
-      setName(user.name); // Set the name from user data if logged in
-      setEmail(user.email); // Set the email from user data if logged in
+      setName(user.displayName || user.email); // ✅ Firebase user displayName or email
+      setEmail(user.email); // ✅ Firebase user email
     }
   }, [user]);
 
@@ -27,137 +31,178 @@ const ContactPage = () => {
       });
 
       if (response.ok) {
+        toast.success("Message sent successfully!");
         console.log("Message sent successfully!");
         setMessage(""); // Reset only the message field
       } else {
         const errorBody = await response.json();
         const errorMessage = errorBody.msg || "Failed to send message";
+        toast.error(errorMessage);
         console.error(errorMessage);
       }
     } catch (error) {
+      toast.error("Error sending message. Please try again.");
       console.error("Error sending message:", error);
     }
   };
 
   return (
-    <Section
-      className="pt-[4rem] -mt-[5.25rem]"
-      crosses
-      crossesOffset="lg:translate-y-[5.25rem]"
-      customPaddings
-      id="hero"
-    >
-      <div className="font-nunito bg-[#0e0c15] min-h-screen p-4 flex flex-col lg:flex-row lg:justify-between text-white">
-        {/* Contact Form Section */}
-        <div className="flex-1 px-6 lg:pl-16 my-10">
-          <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient lg:mx-44">
-            <form
-              onSubmit={handleSubmit}
-              className="shadow-lg rounded-lg p-8 bg-gray-800 max-w-lg mx-auto bg-co"
-            >
-              <div className="text-center mb-8 ">
-                <h1 className="text-2xl font-semibold mb-4">Get in Touch</h1>
-                <p className="text-gray-400">
-                  Have questions? Feel free to contact us with your queries.
-                </p>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <label htmlFor="firstName" className="block text-gray-300">
-                    First Name
-                  </label>
-                  <input
-                    id="firstName"
-                    className="w-full border border-gray-500 bg-gray-900 p-3 rounded text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    name="FirstName"
-                    placeholder="Enter your first name"
+    <Section className="pt-[6rem] -mt-[5.25rem]" crosses>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      
+      <div className="container mx-auto px-4 py-12">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Touch</span>
+          </h1>
+          <p className="text-n-4 text-lg md:text-xl max-w-3xl mx-auto">
+            Have questions about our medical platform? We&apos;re here to help you with all your healthcare technology needs.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+          {/* Contact Form */}
+          <div className="order-2 lg:order-1">
+            <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient">
+              <div className="bg-n-8 rounded-xl p-8">
+                <h2 className="text-2xl font-semibold text-white mb-6">Send us a message</h2>
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <InputControls
+                    label="Full Name"
+                    type="text"
+                    placeholder="Enter your full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-gray-300">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    className="w-full border border-gray-500 bg-gray-900 p-3 rounded text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    name="Email"
-                    placeholder="Enter your email"
+                  
+                  <InputControls
+                    label="Email Address"
+                    type="email"
+                    placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                </div>
-                <div>
-                  <label htmlFor="message" className="block text-gray-300">
-                    What do you have in mind?
-                  </label>
-                  <textarea
-                    id="message"
-                    className="w-full border border-gray-500 bg-gray-900 p-3 rounded text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    name="Message"
-                    placeholder="Enter your query"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    required
-                  ></textarea>
+                  
+                  <div>
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-n-3 block mb-2">
+                      Message
+                    </label>
+                    <textarea
+                      className="flex min-h-[120px] w-full rounded-xl border border-input bg-n-7 px-3 py-2 text-sm ring-offset-background placeholder:text-n-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-n-1 resize-none"
+                      placeholder="Tell us about your inquiry..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 px-6 rounded-xl font-medium hover:from-purple-600 hover:to-pink-700 transition duration-300 transform hover:scale-105"
+                  >
+                    Send Message
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="order-1 lg:order-2">
+            <div className="space-y-8">
+              {/* Contact Details */}
+              <div className="bg-n-8 rounded-xl p-8 border border-n-6">
+                <h3 className="text-xl font-semibold text-white mb-6">Contact Information</h3>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                      <FaMapMarkerAlt className="text-white text-lg" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium">Address</h4>
+                      <p className="text-n-4">123 Healthcare St, Medical District, City 12345</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                      <FaPhone className="text-white text-lg" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium">Phone</h4>
+                      <p className="text-n-4">+1 (555) 123-4567</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                      <FaEnvelope className="text-white text-lg" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium">Email</h4>
+                      <p className="text-n-4">support@vitaledge.com</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-500 text-white py-3 rounded mt-6 hover:bg-blue-600 transition"
-              >
-                Submit
-              </button>
-            </form>
-          </div>
-        </div>
 
-        {/* Map and Social Section */}
-        <div className="flex-1 px-6 my-10 lg:pr-16">
-          <div className="flex flex-col items-center text-center lg:items-start">
-            <p className="text-2xl font-semibold mb-4">Reach us at</p>
-            <p className="text-gray-400 mb-6">
-              We're here to help with your queries and concerns.
-            </p>
-            <div
-              className="w-full h-64 bg-gray-700 bg-cover bg-center rounded-lg mb-6"
-              style={{
-                backgroundImage:
-                  'url("https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/sc23.png")',
-              }}
-            ></div>
-            <div className="flex space-x-4 justify-center lg:justify-start">
-              <a href="#" className="hover:text-blue-500">
-                <img
-                  className="w-8 h-8"
-                  src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-twitter.png"
-                  alt="Twitter"
-                />
-              </a>
-              <a href="#" className="hover:text-blue-500">
-                <img
-                  className="w-8 h-8"
-                  src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-facebook.png"
-                  alt="Facebook"
-                />
-              </a>
-              <a href="#" className="hover:text-blue-500">
-                <img
-                  className="w-8 h-8"
-                  src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-google.png"
-                  alt="Google"
-                />
-              </a>
-              <a href="#" className="hover:text-blue-500">
-                <img
-                  className="w-8 h-8"
-                  src="https://workik-widget-assets.s3.amazonaws.com/Footer1-83/v1/images/Icon-instagram.png"
-                  alt="Instagram"
-                />
-              </a>
+              {/* Social Media */}
+              <div className="bg-n-8 rounded-xl p-8 border border-n-6">
+                <h3 className="text-xl font-semibold text-white mb-6">Follow Us</h3>
+                <div className="flex space-x-4">
+                  <a
+                    href="#"
+                    className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-700 transition duration-300 transform hover:scale-110"
+                  >
+                    <FaTwitter className="text-white text-lg" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-700 transition duration-300 transform hover:scale-110"
+                  >
+                    <FaFacebook className="text-white text-lg" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-700 transition duration-300 transform hover:scale-110"
+                  >
+                    <FaGoogle className="text-white text-lg" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-700 transition duration-300 transform hover:scale-110"
+                  >
+                    <FaInstagram className="text-white text-lg" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Map */}
+              <div className="bg-n-8 rounded-xl p-8 border border-n-6">
+                <h3 className="text-xl font-semibold text-white mb-6">Location</h3>
+                <div className="w-full h-64 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <FaMapMarkerAlt className="text-4xl mb-4 mx-auto" />
+                    <p className="text-lg font-medium">Interactive Map</p>
+                    <p className="text-sm opacity-75">Coming Soon</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

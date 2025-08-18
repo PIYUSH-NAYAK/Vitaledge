@@ -4,41 +4,22 @@ import ContactPage from "./components/myComp/ContactUs";
 import Footer from "./components/mycomp2/Footer";
 import Header from "./components/mycomp2/Header";
 import { Homepage } from "./components/myComp/Homepage";
-import Login from "./components/myComp/Login";
+import Login from "./components/Login"; // ✅ Firebase Login
+import Register from "./components/Register"; // ✅ Firebase Register
+import Dashboard from "./components/Dashboard"; // ✅ Firebase Dashboard
 import Products from "./comp2/Products" // ✅ Ensure correct path
 import AboutPage from "./components/myComp/Aboutus";
-import SignupForm from "./components/myComp/Signup";
 import Error404 from "./components/myComp/errorPage";
-import Logout from "./components/myComp/Logout";
 import Checkout from "./components/myComp/Checkout";
 import Bill from "./components/myComp/Bill";
-import { useAuth } from "./store/auth"; // ✅ Fixed import
-import { ToastContainer, toast } from "react-toastify";
+import Logout from "./components/myComp/Logout"; // ✅ Add Firebase Logout
+import WalletTest from "./components/WalletTest"; // ✅ Wallet test component
+import { AuthProvider, useAuth } from "./context/AuthContext"; // ✅ Firebase Auth Context
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅ Firebase Protected Route
+import { ToastContainer } from "react-toastify";
 
-// Protected Route Component
-import { useEffect, useState } from "react";
-
-const ProtectedRoute = ({ element }) => {
-  const { loggedIn } = useAuth();
-  const [redirect, setRedirect] = useState(false);
-
-  useEffect(() => {
-    if (!loggedIn) {
-      toast.info("Please login to access this page");
-      setTimeout(() => setRedirect(true), 10);
-    }
-  }, [loggedIn]);
-
-  if (redirect) {
-    return <Navigate to="/login" />;
-  }
-
-  return loggedIn ? element : null;
-};
-
-
-const App = () => {
-  const { loggedIn } = useAuth(); // ✅ Centralized auth check
+const AppContent = () => {
+  const { user } = useAuth(); // ✅ Firebase auth check
 
   return (
     <>
@@ -57,40 +38,71 @@ const App = () => {
         <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
-          <Route
-            path="/contact"
-            element={<ProtectedRoute element={<ContactPage />} />}
-          />
-          {/* Prevent logged-in users from accessing login */}
+          <Route path="/wallet-test" element={<WalletTest />} />
+          
+          {/* Public routes - redirect to dashboard if logged in */}
           <Route
             path="/login"
-            element={loggedIn ? <Navigate to="/" /> : <Login />}
+            element={user ? <Navigate to="/dashboard" /> : <Login />}
           />
           <Route
             path="/register"
-            element={loggedIn ? <Navigate to="/" /> : <SignupForm />}
+            element={user ? <Navigate to="/dashboard" /> : <Register />}
+          />
+          
+          {/* Protected routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <ProtectedRoute>
+                <ContactPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/products"
-            element={<ProtectedRoute element={<Products />} />}
+            element={
+              <ProtectedRoute>
+                <Products />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/aboutus"
-            element={<ProtectedRoute element={<AboutPage />} />}
-          />
-          {/* Protected Routes */}
-          <Route
-            path="/logout"
-            element={<ProtectedRoute element={<Logout />} />}
+            element={
+              <ProtectedRoute>
+                <AboutPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/checkout"
-            element={<ProtectedRoute element={<Checkout />} />}
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/bill"
-            element={<ProtectedRoute element={<Bill />} />}
+            element={
+              <ProtectedRoute>
+                <Bill />
+              </ProtectedRoute>
+            }
           />
+          
+          {/* Logout route */}
+          <Route path="/logout" element={<Logout />} />
+          
           {/* 404 Page */}
           <Route path="*" element={<Error404 />} />
         </Routes>
@@ -98,6 +110,14 @@ const App = () => {
       </div>
       <ButtonGradient />
     </>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

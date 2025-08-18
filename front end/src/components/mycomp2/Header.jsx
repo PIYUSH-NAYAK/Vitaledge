@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import { useContext, useState } from "react";
 import { CartContext } from "../../context/cart2.jsx"; // ✅ Cart context
-import { useAuth } from "../../store/auth";
+import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase auth
 import { navigation } from "../../constants";
 import Button from "./Button";
 import MenuSvg from "../../assets/svg/MenuSvg";
@@ -16,8 +16,10 @@ const Header = () => {
   const pathname = useLocation();
   const [openNavigation, setOpenNavigation] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { loggedIn } = useAuth();
+  const { user } = useAuth(); // ✅ Updated to use Firebase user
   const { cartItems } = useContext(CartContext); // ✅ Cart items from context
+
+  const loggedIn = !!user; // ✅ Derive loggedIn from user existence
 
   // ✅ Toggle navigation menu
   const toggleNavigation = () => {

@@ -1,38 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const main = require("../Router/auth-controller");
-const valid = require("../Middleware/Validator");
-const signupValid = require("../Validator/signupValid");
-const loginValid = require("../Validator/loginUp");
-const authMiddleware = require('../Middleware/authMiddleware');
+const firebaseAuthMiddleware = require('../Middleware/firebaseAuthMiddleware');
 
 router.route('/').get(main.home);
 router.route('/contact').post(main.contactUs);
 
-// ✅ Register with Validation
-router.route('/register').post(
-    valid(signupValid),  // Ensure middleware returns correct validation
-    main.register
-);
+// Registration and login routes removed; handled by Firebase Auth in frontend
 
-// ✅ Login with Validation
-router.route('/login').post(
-    valid(loginValid),   // Ensure middleware returns correct validation
-    main.login
-);
-
-
-
-// ✅ Get Authenticated User Data
-router.route('/auth').get(authMiddleware, main.authUser);
-
+// ✅ Get Authenticated User Data (now using Firebase)
+router.route('/auth').get(firebaseAuthMiddleware, main.authUser);
 
 router.route('/addProduct').post(
-    authMiddleware,
+    firebaseAuthMiddleware,
     main.addProduct
 );
 router.route('/getProducts').get(
-    authMiddleware,
+    firebaseAuthMiddleware,
     main.getProducts
 );
 

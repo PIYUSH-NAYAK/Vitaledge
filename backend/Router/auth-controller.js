@@ -66,14 +66,17 @@ const login = async (req, res) => {
     }
 };
 
-// ✅ Authenticated User Data
+// Registration and login controllers removed; handled by Firebase Auth in frontend
+
+// ✅ Authenticated User Data (now from Firebase)
 const authUser = async (req, res) => {
     try {
-        const userData = req.user;
+        const userData = req.firebaseUser; // From Firebase middleware
         res.status(200).json({ userData });
-        console.log(userData);
+        console.log('Firebase user data:', userData);
     } catch (error) {
         console.error("Server Error:", error);
+        res.status(500).json({ error: "Server error" });
     }
 };
 

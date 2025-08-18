@@ -5,10 +5,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import "./index.css";
 import { CartProvider } from "./context/cart2.jsx";
-import { AuthProvider } from "./store/auth.jsx";
+// Firebase AuthProvider is now handled inside App.jsx
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <AuthProvider>
   <React.StrictMode>
     <CartProvider>
       <BrowserRouter>
@@ -16,5 +15,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </BrowserRouter>
     </CartProvider>
   </React.StrictMode>
-    </AuthProvider>
 );

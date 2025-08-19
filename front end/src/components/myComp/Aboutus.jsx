@@ -1,6 +1,13 @@
 
-import { BackgroundCircles } from "../design/Header";
 import Section from "../mycomp2/Section";
+
+// Simple background circles component
+const BackgroundCircles = () => (
+  <div className="absolute top-[42%] left-1/2 w-[78rem] aspect-square border border-n-6 rounded-full -translate-x-1/2 -translate-y-1/2">
+    <div className="absolute top-1/2 left-1/2 w-[65.875rem] aspect-square border border-n-6 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+    <div className="absolute top-1/2 left-1/2 w-[51.375rem] aspect-square border border-n-6 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+  </div>
+);
 
 export default function AboutPage() {
   return (

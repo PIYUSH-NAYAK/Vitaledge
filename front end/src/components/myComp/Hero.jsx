@@ -1,11 +1,23 @@
 import { curve  } from "../../assets";
 import Button from "../mycomp2/Button";
 import Section from "../mycomp2/Section";
-import { BackgroundCircles, BottomLine  } from "../design/Hero";
 
 import { useRef } from "react";
 import Generating from "../mycomp2/Generating";
 import CompanyLogos from "../mycomp2/CompanyLogos";
+
+// Simple background circles component
+const BackgroundCircles = () => (
+  <div className="absolute top-[42%] left-1/2 w-[78rem] aspect-square border border-n-6 rounded-full -translate-x-1/2 -translate-y-1/2">
+    <div className="absolute top-1/2 left-1/2 w-[65.875rem] aspect-square border border-n-6 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+    <div className="absolute top-1/2 left-1/2 w-[51.375rem] aspect-square border border-n-6 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+  </div>
+);
+
+// Simple bottom line component
+const BottomLine = () => (
+  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-n-1 to-transparent"></div>
+);
 
 const Hero = () => {
   const parallaxRef = useRef(null);

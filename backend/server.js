@@ -37,7 +37,8 @@ app.get('/', (req, res) => {
 
 // ✅ Connect to DB and start the server
 connectDB().then(() => {
-    app.listen(7777, () => {
-        console.log('✅ Server is running on port 7777');
+    const PORT = process.env.PORT || 7777;
+    app.listen(PORT, () => {
+        console.log(`✅ Server is running on port ${PORT}`);
     });
 });

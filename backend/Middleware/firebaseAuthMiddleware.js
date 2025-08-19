@@ -1,15 +1,31 @@
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin SDK
-// You'll need to add your Firebase service account key to .env
+// For development, we'll use a simpler configuration
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+  try {
+    // Try to initialize with service account if available
+    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        }),
+      });
+    } else {
+      // Fallback: Initialize with just project ID for token verification
+      admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID || 'vitaledge-b9586',
+      });
+    }
+  } catch (error) {
+    console.error('Firebase Admin initialization error:', error.message);
+    // Initialize with minimal config for development
+    admin.initializeApp({
+      projectId: 'vitaledge-b9586',
+    });
+  }
 }
 
 // Middleware to verify Firebase ID tokens

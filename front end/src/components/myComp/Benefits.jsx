@@ -2,8 +2,12 @@ import { benefits } from "../../constants";
 import Heading from "../mycomp2/Heading";
 import Section from "../mycomp2/Section";
 import Arrow from "../../assets/svg/Arrow";
-import { GradientLight } from "../design/Benefits";
 import ClipPath from "../../assets/svg/ClipPath";
+
+// Simple gradient light component
+const GradientLight = () => (
+  <div className="absolute top-0 left-1/4 w-full aspect-square bg-radial-gradient from-[#28206C] to-[#28206C]/0 to-70% pointer-events-none" />
+);
 
 const Benefits = () => {
   return (

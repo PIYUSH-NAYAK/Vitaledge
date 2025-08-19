@@ -1,7 +1,7 @@
 import { getIdToken } from '../firebase/auth';
 
 // API utility for making authenticated requests with Firebase tokens
-const API_BASE_URL = import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:7777';
 
 export const apiRequest = async (endpoint, options = {}) => {
   try {

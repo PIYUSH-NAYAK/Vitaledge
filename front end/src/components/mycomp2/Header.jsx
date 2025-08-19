@@ -6,7 +6,6 @@ import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase 
 import { navigation } from "../../constants";
 import Button from "./Button";
 import MenuSvg from "../../assets/svg/MenuSvg";
-import { HamburgerMenu } from "../design/Header";
 import WalletConnectButton from "../../comp2/walletconnect";
 import { Link } from "react-router-dom";
 import Cart from "../../comp2/Cart";

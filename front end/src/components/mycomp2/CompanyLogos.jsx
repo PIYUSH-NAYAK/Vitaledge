@@ -1,4 +1,7 @@
-import { companyLogos } from "../../constants";
+import { yourlogo } from "../../assets";
+
+// Simple company logos with VitalEdge logo
+const companyLogos = [yourlogo, yourlogo, yourlogo, yourlogo, yourlogo];
 
 const CompanyLogos = ({ className }) => {
   return (

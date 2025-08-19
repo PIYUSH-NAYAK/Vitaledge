@@ -13,7 +13,6 @@ import Error404 from "./components/myComp/errorPage";
 import Checkout from "./components/myComp/Checkout";
 import Bill from "./components/myComp/Bill";
 import Logout from "./components/myComp/Logout"; // ✅ Add Firebase Logout
-import WalletTest from "./components/WalletTest"; // ✅ Wallet test component
 import { AuthProvider, useAuth } from "./context/AuthContext"; // ✅ Firebase Auth Context
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ Firebase Protected Route
 import { ToastContainer } from "react-toastify";
@@ -38,7 +37,6 @@ const AppContent = () => {
         <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
-          <Route path="/wallet-test" element={<WalletTest />} />
           
           {/* Public routes - redirect to dashboard if logged in */}
           <Route

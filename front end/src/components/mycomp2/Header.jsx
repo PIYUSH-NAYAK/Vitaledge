@@ -1,13 +1,12 @@
 import { useLocation } from "react-router-dom";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { CartContext } from "../../context/cart2.jsx"; // ✅ Cart context
 import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase auth
 import { navigation } from "../../constants";
 import Button from "./Button";
 import MenuSvg from "../../assets/svg/MenuSvg";
 import WalletConnectButton from "../../comp2/walletconnect";
-import { Link } from "react-router-dom";
 import Cart from "../../comp2/Cart";
 import { FaShoppingCart } from "react-icons/fa"; // ✅ Import Cart Icon
 
@@ -15,8 +14,28 @@ const Header = () => {
   const pathname = useLocation();
   const [openNavigation, setOpenNavigation] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { user } = useAuth(); // ✅ Updated to use Firebase user
   const { cartItems } = useContext(CartContext); // ✅ Cart items from context
+
+  // Check admin status
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        try {
+          const idTokenResult = await user.getIdTokenResult();
+          setIsAdmin(!!idTokenResult.claims.admin);
+        } catch (error) {
+          console.error("Error checking admin status:", error);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const loggedIn = !!user; // ✅ Derive loggedIn from user existence
 
@@ -61,7 +80,9 @@ const Header = () => {
             } fixed top-[5rem] left-0 right-0 bottom-0 bg-n-8 lg:static lg:flex lg:mx-auto lg:bg-transparent flex-col lg:flex-row`}
           >
             <div className="relative z-2 flex flex-col items-center justify-center m-auto lg:flex-row">
-              {navigation.map((item) => (
+              {navigation
+                .filter(item => !item.adminOnly || (item.adminOnly && isAdmin))
+                .map((item) => (
                 <a
                   key={item.id}
                   href={item.url}
@@ -71,7 +92,7 @@ const Header = () => {
                     item.url === pathname.hash
                       ? "z-2 lg:text-n-1"
                       : "lg:text-n-1/50"
-                  } lg:leading-5 lg:hover:text-n-1 xl:px-12`}
+                  } lg:leading-5 lg:hover:text-n-1 xl:px-4 lg:px-3`}
                 >
                   {item.title}
                 </a>

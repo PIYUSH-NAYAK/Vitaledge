@@ -3,6 +3,7 @@ const cors = require('cors');
 const express = require('express');
 const app = express();
 const router = require('./Router/auth-router');
+const adminRouter = require('./Router/admin-router');
 const connectDB = require('./Utils/db');
 
 // ✅ CORS Configuration
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ✅ Use Routes
 app.use('/', router);
+app.use('/admin', adminRouter);
 
 // ✅ Default route
 app.get('/', (req, res) => {

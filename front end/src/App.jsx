@@ -7,6 +7,7 @@ import { Homepage } from "./components/myComp/Homepage";
 import Login from "./components/Login"; // ✅ Firebase Login
 import Register from "./components/Register"; // ✅ Firebase Register
 import Dashboard from "./components/Dashboard"; // ✅ Firebase Dashboard
+import AdminPage from "./components/AdminPage"; // ✅ Admin Page
 import Products from "./comp2/Products" // ✅ Ensure correct path
 import AboutPage from "./components/myComp/Aboutus";
 import Error404 from "./components/myComp/errorPage";
@@ -94,6 +95,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <Bill />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
               </ProtectedRoute>
             }
           />

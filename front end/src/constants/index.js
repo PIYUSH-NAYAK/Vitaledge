@@ -37,6 +37,12 @@ export const navigation = [
     title: "Contact Us",
     url: "/contact",
   },
+  {
+    id: "4",
+    title: "Admin",
+    url: "/admin",
+    adminOnly: true,
+  },
   // {
   //   id: "4",
   //   title: "New account",

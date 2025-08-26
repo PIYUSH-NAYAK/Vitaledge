@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
-import InputControls from "../comp2/Inputcontrols";
+import InputControls from "./common/Inputcontrols";
 import Section from "../components/mycomp2/Section";
 
 const Login = () => {

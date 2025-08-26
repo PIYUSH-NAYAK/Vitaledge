@@ -8,14 +8,15 @@ import Login from "./components/Login"; // ✅ Firebase Login
 import Register from "./components/Register"; // ✅ Firebase Register
 import Dashboard from "./components/Dashboard"; // ✅ Firebase Dashboard
 import AdminPage from "./components/AdminPage"; // ✅ Admin Page
-import Products from "./comp2/Products" // ✅ Ensure correct path
+import AddMedicine from "./components/AddMedicine"; // ✅ Add medicine page
+import Medicines from "./components/Medicines"; // ✅ Medicines listing
+import MedicineDetails from "./components/MedicineDetails"; // ✅ Medicine details
 import AboutPage from "./components/myComp/Aboutus";
 import Error404 from "./components/myComp/errorPage";
-import Checkout from "./components/myComp/Checkout";
-import Bill from "./components/myComp/Bill";
 import Logout from "./components/myComp/Logout"; // ✅ Add Firebase Logout
 import { AuthProvider, useAuth } from "./context/AuthContext"; // ✅ Firebase Auth Context
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ Firebase Protected Route
+import AdminProtectedRoute from "./components/AdminProtectedRoute"; // ✅ Admin Protected Route
 import { ToastContainer } from "react-toastify";
 
 const AppContent = () => {
@@ -67,10 +68,18 @@ const AppContent = () => {
             }
           />
           <Route
-            path="/products"
+            path="/medicines"
             element={
               <ProtectedRoute>
-                <Products />
+                <Medicines />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/medicines/:slug"
+            element={
+              <ProtectedRoute>
+                <MedicineDetails />
               </ProtectedRoute>
             }
           />
@@ -83,27 +92,19 @@ const AppContent = () => {
             }
           />
           <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bill"
-            element={
-              <ProtectedRoute>
-                <Bill />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <AdminPage />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/add-medicine"
+            element={
+              <AdminProtectedRoute>
+                <AddMedicine />
+              </AdminProtectedRoute>
             }
           />
           

@@ -33,17 +33,40 @@ export const apiRequest = async (endpoint, options = {}) => {
 // Specific API functions
 export const getAuthenticatedUser = () => apiRequest('/auth');
 
-export const addProduct = (productData) => 
-  apiRequest('/addProduct', {
-    method: 'POST',
-    body: JSON.stringify(productData),
-  });
-
-export const getProducts = (page = 1, limit = 8) => 
-  apiRequest(`/getProducts?page=${page}&limit=${limit}`);
-
 export const submitContactForm = (contactData) => 
   apiRequest('/contact', {
     method: 'POST',
     body: JSON.stringify(contactData),
+  });
+
+// Medicine API functions
+export const getMedicines = (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  return apiRequest(`/api/medicines${queryString ? `?${queryString}` : ''}`);
+};
+
+export const getMedicineDetails = (identifier) => 
+  apiRequest(`/api/medicines/${identifier}`);
+
+export const searchMedicines = (query) => 
+  apiRequest(`/api/medicines/search?q=${encodeURIComponent(query)}`);
+
+export const getMedicineCategories = () => 
+  apiRequest('/api/medicines/categories');
+
+export const addMedicine = (medicineData) => 
+  apiRequest('/api/medicines', {
+    method: 'POST',
+    body: JSON.stringify(medicineData),
+  });
+
+export const updateMedicine = (id, medicineData) => 
+  apiRequest(`/api/medicines/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(medicineData),
+  });
+
+export const deleteMedicine = (id) => 
+  apiRequest(`/api/medicines/${id}`, {
+    method: 'DELETE',
   });

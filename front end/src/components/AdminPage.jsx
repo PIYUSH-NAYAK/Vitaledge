@@ -155,50 +155,84 @@ const AdminPage = () => {
               Hi Admin! 👋
             </h1>
             <p className="text-gray-300">
-              Welcome to the admin dashboard. Manage user permissions and system settings.
+              Welcome to the admin dashboard. Manage user permissions, medicines, and system settings.
             </p>
           </div>
 
-          {/* Admin Actions */}
-          <div className="bg-gray-800 rounded-lg p-6 mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-white">
+          {/* Quick Actions Grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Medicine Management */}
+            <div className="bg-gray-800 rounded-lg p-6">
+              <h2 className="text-2xl font-semibold text-white mb-4">
+                Medicine Management
+              </h2>
+              <p className="text-gray-300 mb-6">
+                Add new medicines to the catalog with images and detailed information.
+              </p>
+              <div className="space-y-3">
+                <a
+                  href="/admin/add-medicine"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add New Medicine
+                </a>
+                <a
+                  href="/medicines"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  View All Medicines
+                </a>
+              </div>
+            </div>
+
+            {/* User Management Quick Actions */}
+            <div className="bg-gray-800 rounded-lg p-6">
+              <h2 className="text-2xl font-semibold text-white mb-4">
                 User Management
               </h2>
+              <p className="text-gray-300 mb-6">
+                Manage user permissions and admin privileges.
+              </p>
               <button
                 onClick={toggleUserList}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
               >
                 <FaUsers />
                 {showUserList ? "Hide Users" : "View All Users"}
               </button>
             </div>
-            
-            {/* Set Admin Claim */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-white mb-4">
-                Grant Admin Privileges
-              </h3>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="email"
-                  placeholder="Enter user email"
-                  value={userEmail}
-                  onChange={(e) => setUserEmail(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
-                />
-                <button
-                  onClick={handleSetAdminClaim}
-                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <FaUserPlus />
-                  Set Admin Claim
-                </button>
-              </div>
-              <p className="text-gray-400 text-sm mt-2">
-                This will grant admin privileges to the specified user.
-              </p>
+          </div>
+
+          {/* User Management Details */}
+          <div className="bg-gray-800 rounded-lg p-6 mb-8">
+            <h3 className="text-xl font-semibold text-white mb-6">
+              Grant Admin Privileges
+            </h3>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="email"
+                placeholder="Enter user email"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+              />
+              <button
+                onClick={handleSetAdminClaim}
+                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <FaUserPlus />
+                Set Admin Claim
+              </button>
             </div>
+            <p className="text-gray-400 text-sm mt-2">
+              This will grant admin privileges to the specified user.
+            </p>
 
             {/* User List */}
             {showUserList && (

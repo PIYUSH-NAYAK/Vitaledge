@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // For navigation after successful login
-import InputControls from "../../comp2/Inputcontrols";
+import InputControls from "../common/Inputcontrols";
 import { useAuth } from "../../store/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import styles for Toastify

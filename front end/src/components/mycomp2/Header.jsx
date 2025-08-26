@@ -1,22 +1,17 @@
 import { useLocation } from "react-router-dom";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
-import { useContext, useState, useEffect } from "react";
-import { CartContext } from "../../context/cart2.jsx"; // ✅ Cart context
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase auth
 import { navigation } from "../../constants";
 import Button from "./Button";
 import MenuSvg from "../../assets/svg/MenuSvg";
-import WalletConnectButton from "../../comp2/walletconnect";
-import Cart from "../../comp2/Cart";
-import { FaShoppingCart } from "react-icons/fa"; // ✅ Import Cart Icon
+import WalletConnectButton from "../common/walletconnect";
 
 const Header = () => {
   const pathname = useLocation();
   const [openNavigation, setOpenNavigation] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const { user } = useAuth(); // ✅ Updated to use Firebase user
-  const { cartItems } = useContext(CartContext); // ✅ Cart items from context
 
   // Check admin status
   useEffect(() => {
@@ -48,11 +43,6 @@ const Header = () => {
       setOpenNavigation(true);
       disablePageScroll();
     }
-  };
-
-  // ✅ Toggle Cart Modal
-  const toggleCartModal = () => {
-    setShowModal(!showModal);
   };
 
   return (
@@ -123,24 +113,11 @@ const Header = () => {
             </div>
           </nav>
 
-          {/* ✅ Auth Buttons + Cart Icon for Desktop */}
+          {/* ✅ Auth Buttons + Wallet for Desktop */}
           <div className="flex items-center space-x-10 ml-auto">
             {/* ✅ Authenticated User */}
             {loggedIn ? (
               <>
-                {/* ✅ Cart Icon (Visible only when logged in) */}
-                <div
-                  className="relative cursor-pointer"
-                  onClick={toggleCartModal}
-                >
-                  <FaShoppingCart className="text-2xl text-white hover:text-color-1" />
-                  {cartItems.length > 0 && (
-                    <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                      {cartItems.length}
-                    </span>
-                  )}
-                </div>
-
                 <Button className="hidden lg:flex">
                   <WalletConnectButton />
                 </Button>
@@ -171,11 +148,6 @@ const Header = () => {
             </Button>
           </div>
         </div>
-      </div>
-
-      {/* ✅ Global Cart Modal with z-50 */}
-      <div className={`fixed inset-0 z-50 ${showModal ? "block" : "hidden"}`}>
-        <Cart showModal={showModal} toggle={toggleCartModal} />
       </div>
     </>
   );

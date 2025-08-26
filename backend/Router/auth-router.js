@@ -11,13 +11,4 @@ router.route('/contact').post(main.contactUs);
 // ✅ Get Authenticated User Data (now using Firebase)
 router.route('/auth').get(firebaseAuthMiddleware, main.authUser);
 
-router.route('/addProduct').post(
-    firebaseAuthMiddleware,
-    main.addProduct
-);
-router.route('/getProducts').get(
-    firebaseAuthMiddleware,
-    main.getProducts
-);
-
 module.exports = router;

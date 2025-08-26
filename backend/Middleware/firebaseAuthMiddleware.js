@@ -42,11 +42,14 @@ const firebaseAuthMiddleware = async (req, res, next) => {
     // Verify the Firebase ID token
     const decodedToken = await admin.auth().verifyIdToken(token);
     
+    console.log('🔍 Decoded Token Claims:', decodedToken); // Debug log
+    
     // Add user info to request object
     req.firebaseUser = {
       uid: decodedToken.uid,
       email: decodedToken.email,
-      name: decodedToken.name || decodedToken.email
+      name: decodedToken.name || decodedToken.email,
+      customClaims: decodedToken // The claims are in the decoded token itself
     };
     
     next();

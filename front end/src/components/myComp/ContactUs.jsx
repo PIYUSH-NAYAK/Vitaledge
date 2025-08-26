@@ -5,7 +5,7 @@ import { FaTwitter, FaFacebook, FaGoogle, FaInstagram, FaMapMarkerAlt, FaPhone, 
 const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/contact`;
 import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase auth
 import Section from "../mycomp2/Section";
-import InputControls from "../../comp2/Inputcontrols";
+import InputControls from "../common/Inputcontrols";
 
 const ContactPage = () => {
   const [name, setName] = useState("");

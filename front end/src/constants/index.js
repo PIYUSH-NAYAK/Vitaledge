@@ -20,12 +20,11 @@ export const navigation = [
     id: "0",
     title: "Home",
     url: "/",
-  }
-  ,
+  },
   {
     id: "1",
-    title: "Products",
-    url: "/products",
+    title: "Medicines",
+    url: "/medicines",
   },
   {
     id: "2",

@@ -224,17 +224,8 @@ FRONTEND_URL=http://localhost:5173
 - `POST /api/auth/login` - User login
 - `GET /api/auth/profile` - Get user profile
 
-### Products
-- `GET /api/products` - Get all products
-- `GET /api/products/:id` - Get single product
-- `POST /api/products` - Create product (admin)
-- `PUT /api/products/:id` - Update product (admin)
-- `DELETE /api/products/:id` - Delete product (admin)
-
-### Orders
-- `POST /api/orders` - Create new order
-- `GET /api/orders` - Get user orders
-- `GET /api/orders/:id` - Get single order
+### Contact
+- `POST /api/contact` - Submit contact form
 
 ## 🔒 Security Features
 

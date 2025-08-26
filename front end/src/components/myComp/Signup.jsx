@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import InputControls from "../../comp2/Inputcontrols";
+import InputControls from "../common/Inputcontrols";
 import { useAuth } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";

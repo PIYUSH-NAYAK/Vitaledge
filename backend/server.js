@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const router = require('./Router/auth-router');
 const adminRouter = require('./Router/admin-router');
+const medicineRouter = require('./Router/medicine-router');
 const connectDB = require('./Utils/db');
 
 // ✅ CORS Configuration
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 // ✅ Use Routes
 app.use('/', router);
 app.use('/admin', adminRouter);
+app.use('/api', medicineRouter);
 
 // ✅ Default route
 app.get('/', (req, res) => {

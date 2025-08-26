@@ -1,6 +1,5 @@
 const contact = require("../Models/contactModel");
 const user = require("../Models/User-Model");
-const Product = require('../Models/Product');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -80,52 +79,10 @@ const authUser = async (req, res) => {
     }
 };
 
-// ✅ Add new product with Google Drive Image Link
-const addProduct = async (req, res) => {
-    try {
-        const { title, description, price, imageUrl, quantity } = req.body;
-
-        const newProduct = new Product({
-            title,
-            description,
-            price,
-            imageUrl,
-            quantity
-        });
-
-        await newProduct.save();
-        res.status(201).json({ message: 'Product added successfully!' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error adding product', error });
-    }
-};
-
-// ✅ Get all products
-const getProducts = async (req, res) => {
-    const { page = 1, limit = 8 } = req.query; // Default: page 1, 8 products per page
-    const skip = (page - 1) * limit;
-
-    try {
-        const products = await Product.find().skip(skip).limit(parseInt(limit));
-        const total = await Product.countDocuments();
-
-        res.json({
-            products,
-            total,
-            hasMore: total > page * limit, // Check if more products exist
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching products", error });
-    }
-};
-
-
 module.exports = {
     home,
     contactUs,
     register,
     login,
     authUser,
-    addProduct, // ✅ Add product functionality
-    getProducts, // ✅ Get product functionality
 };

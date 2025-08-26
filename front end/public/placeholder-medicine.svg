@@ -1,0 +1,18 @@
+<!-- Simple SVG placeholder for medicines -->
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#1F2937"/>
+  <g transform="translate(150, 100)">
+    <!-- Medicine bottle -->
+    <rect x="20" y="30" width="60" height="80" rx="10" fill="#4B5563" stroke="#9CA3AF" stroke-width="2"/>
+    <rect x="35" y="15" width="30" height="20" rx="5" fill="#6B7280"/>
+    <circle cx="50" cy="70" r="15" fill="#EF4444"/>
+    <text x="50" y="75" text-anchor="middle" fill="white" font-size="12" font-family="Arial">+</text>
+    
+    <!-- Pills -->
+    <ellipse cx="25" cy="120" rx="8" ry="12" fill="#3B82F6"/>
+    <ellipse cx="45" cy="125" rx="8" ry="12" fill="#10B981"/>
+    <ellipse cx="65" cy="120" rx="8" ry="12" fill="#F59E0B"/>
+  </g>
+  <text x="200" y="180" text-anchor="middle" fill="#9CA3AF" font-size="14" font-family="Arial">Medicine Image</text>
+  <text x="200" y="200" text-anchor="middle" fill="#6B7280" font-size="12" font-family="Arial">Placeholder</text>
+</svg>

@@ -154,7 +154,7 @@ medicineSchema.pre('save', function(next) {
 // Indexes for better search performance
 medicineSchema.index({ name: 'text', genericName: 'text', tags: 'text' });
 medicineSchema.index({ category: 1 });
-medicineSchema.index({ slug: 1 });
+// slug index is automatically created by unique: true in schema definition
 medicineSchema.index({ isActive: 1 });
 
 module.exports = mongoose.model('Medicine', medicineSchema);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { loginUser, signInWithGoogle } from '../firebase/auth';
+import { loginUser, signInWithGoogleAndLink } from '../firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
@@ -14,7 +14,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, triggerPasswordSetup } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -51,15 +51,36 @@ const Login = () => {
     setLoading(true);
     setError('');
 
-    const result = await signInWithGoogle();
+    const result = await signInWithGoogleAndLink();
     
     if (result.success) {
       toast.success("Google Sign-In successful! Redirecting...");
       console.log('Google Sign-In successful:', result.user);
+      
+      // Check if this is a new user who signed up with Google
+      if (result.isNewUser) {
+        // Trigger password setup modal for new Google users
+        triggerPasswordSetup(result.user);
+      }
       setTimeout(() => navigate('/dashboard'), 1000);
+    } else if (result.error === 'account-exists-email-password' && result.canAutoLink) {
+      // Email/password account exists - auto-link Google account
+      toast.info("Linking your Google account to existing email account...");
+      
+      try {
+        // The account linking happens automatically in the backend
+        // Just proceed to dashboard
+        setTimeout(() => {
+          toast.success("Google account linked successfully!");
+          navigate('/dashboard');
+        }, 1500);
+      } catch (linkError) {
+        setError('Failed to link accounts');
+        toast.error('Failed to link accounts');
+      }
     } else {
-      setError(result.error);
-      toast.error(result.error);
+      setError(result.error || result.message);
+      toast.error(result.error || result.message);
     }
     
     setLoading(false);
@@ -155,7 +176,7 @@ const Login = () => {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-400">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <a href="/register" className="font-medium text-teal-500 hover:text-teal-400">
                   Sign up
                 </a>

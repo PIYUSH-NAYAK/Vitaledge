@@ -14,6 +14,8 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [newGoogleUser, setNewGoogleUser] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChange((user) => {
@@ -24,9 +26,23 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
+  const triggerPasswordSetup = (userInfo) => {
+    setNewGoogleUser(userInfo);
+    setShowPasswordSetup(true);
+  };
+
+  const closePasswordSetup = () => {
+    setShowPasswordSetup(false);
+    setNewGoogleUser(null);
+  };
+
   const value = {
     user,
-    loading
+    loading,
+    showPasswordSetup,
+    newGoogleUser,
+    triggerPasswordSetup,
+    closePasswordSetup
   };
 
   return (

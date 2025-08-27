@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import InputControls from "./common/Inputcontrols";
 import Section from "../components/mycomp2/Section";
+import OTPVerification from "./OTPVerification";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,9 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const { user, triggerPasswordSetup } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -52,27 +55,18 @@ const Register = () => {
       return;
     }
 
-    const password = formData.password;
-    const passwordErrors = [];
+    // Validate password strength
+    const validatePassword = (password) => {
+      const errors = [];
+      if (password.length < 8) errors.push('at least 8 characters');
+      if (!/[a-z]/.test(password)) errors.push('one lowercase letter');
+      if (!/[A-Z]/.test(password)) errors.push('one uppercase letter');
+      if (!/\d/.test(password)) errors.push('one number');
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push('one special character');
+      return errors;
+    };
 
-    if (password.length < 8) {
-      passwordErrors.push('at least 8 characters');
-    }
-
-    if (!/[a-z]/.test(password)) {
-      passwordErrors.push('one lowercase letter');
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      passwordErrors.push('one uppercase letter');
-    }
-
-    if (!/[0-9]/.test(password)) {
-      passwordErrors.push('one number');
-    }
-
-    
-
+    const passwordErrors = validatePassword(formData.password);
     if (passwordErrors.length > 0) {
       const errorMessage = `Password must contain: ${passwordErrors.join(', ')}`;
       setError(errorMessage);
@@ -81,21 +75,64 @@ const Register = () => {
       return;
     }
 
-    const result = await registerUser(formData.email, formData.password, formData.name);
-    
-    if (result.success) {
-      toast.success("Registration successful! Redirecting...");
-      console.log('Registration successful:', result.user);
-      setTimeout(() => navigate('/dashboard'), 1000);
-    } else {
-      setError(result.error);
-      toast.error(result.error);
+    // Send OTP for email verification
+    try {
+      const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/otp/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('OTP sent to your email! Please verify to complete registration.');
+        setPendingEmail(formData.email);
+        setShowOTPVerification(true);
+      } else {
+        // Handle specific error cases
+        if (data.errorCode === 'user-already-exists') {
+          toast.error('You are already registered! Redirecting to login...');
+          setTimeout(() => navigate('/login'), 2000);
+        } else {
+          setError(data.message || 'Failed to send OTP');
+          toast.error(data.message || 'Failed to send OTP');
+        }
+      }
+    } catch (error) {
+      console.error('OTP send error:', error);
+      setError('Network error. Please try again.');
+      toast.error('Network error. Please try again.');
     }
     
     setLoading(false);
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleOTPVerificationSuccess = async (userData) => {
+    // Now register with Firebase using verified email
+    const result = await registerUser(userData.email, formData.password, userData.name);
+    
+    if (result.success) {
+      toast.success("Registration successful! Redirecting...");
+      setTimeout(() => navigate('/dashboard'), 1000);
+    } else {
+      setError(result.error);
+      toast.error(result.error);
+      // Go back to registration form
+      setShowOTPVerification(false);
+    }
+  };
+
+  const handleBackToRegistration = () => {
+    setShowOTPVerification(false);
+    setPendingEmail('');
+  };  const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
 
@@ -104,6 +141,12 @@ const Register = () => {
     if (result.success) {
       toast.success("Google Sign-In successful! Redirecting...");
       console.log('Google Sign-In successful:', result.user);
+      
+      // Check if this is a new user who signed up with Google
+      if (result.isNewUser) {
+        // Trigger password setup modal for new Google users
+        triggerPasswordSetup(result.user);
+      }
       setTimeout(() => navigate('/dashboard'), 1000);
     } else {
       setError(result.error);
@@ -114,7 +157,16 @@ const Register = () => {
   };
 
   return (
-    <Section className="pt-[6rem] -mt-[12rem]" crosses>
+    <>
+      {showOTPVerification ? (
+        <OTPVerification
+          email={pendingEmail}
+          name={formData.name}
+          onVerificationSuccess={handleOTPVerificationSuccess}
+          onBackToRegistration={handleBackToRegistration}
+        />
+      ) : (
+        <Section className="pt-[6rem] -mt-[12rem]" crosses>
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -243,6 +295,8 @@ const Register = () => {
         </div>
       </div>
     </Section>
+      )}
+    </>
   );
 };
 

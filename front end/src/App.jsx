@@ -14,13 +14,15 @@ import MedicineDetails from "./components/MedicineDetails"; // ✅ Medicine deta
 import AboutPage from "./components/myComp/Aboutus";
 import Error404 from "./components/myComp/errorPage";
 import Logout from "./components/myComp/Logout"; // ✅ Add Firebase Logout
+import ProfileSettings from "./components/ProfileSettings"; // ✅ Profile settings
 import { AuthProvider, useAuth } from "./context/AuthContext"; // ✅ Firebase Auth Context
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ Firebase Protected Route
 import AdminProtectedRoute from "./components/AdminProtectedRoute"; // ✅ Admin Protected Route
+import SetPasswordModal from "./components/SetPasswordModal"; // ✅ Password setup modal
 import { ToastContainer } from "react-toastify";
 
 const AppContent = () => {
-  const { user } = useAuth(); // ✅ Firebase auth check
+  const { user, showPasswordSetup, newGoogleUser, closePasswordSetup } = useAuth(); // ✅ Firebase auth check
 
   return (
     <>
@@ -35,6 +37,17 @@ const AppContent = () => {
         draggable
         pauseOnHover
       />
+      
+      {/* Password Setup Modal for new Google users */}
+      <SetPasswordModal
+        isOpen={showPasswordSetup}
+        onClose={closePasswordSetup}
+        userEmail={newGoogleUser?.email}
+        onSuccess={() => {
+          console.log('Password set successfully for:', newGoogleUser?.email);
+        }}
+      />
+      
       <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
         <Header />
         <Routes>
@@ -49,6 +62,10 @@ const AppContent = () => {
             path="/register"
             element={user ? <Navigate to="/dashboard" /> : <Register />}
           />
+          <Route
+            path="/verify-email"
+            element={user ? <Navigate to="/dashboard" /> : <Register />}
+          />
           
           {/* Protected routes */}
           <Route
@@ -56,6 +73,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfileSettings />
               </ProtectedRoute>
             }
           />

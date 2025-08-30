@@ -88,3 +88,12 @@ keypair.json
 
 # Project specific
 .vercel
+
+# Solana test validator data
+test-ledger/
+*.log
+
+# Development and debug files
+debug_*.html
+test_*.js
+check_*.js

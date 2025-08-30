@@ -3,6 +3,9 @@ name = "medweb3"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib", "lib"]
+
 [dependencies]
 solana-program = "1.17.0" # Latest compatible Solana program crate
 borsh = "0.10.3"         # Borsh for serialization/deserialization

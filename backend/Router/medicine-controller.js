@@ -377,6 +377,52 @@ const deleteMedicineImage = async (req, res) => {
     }
 };
 
+// ✅ Update medicine stock (Admin only)
+const updateMedicineStock = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { stock } = req.body;
+
+        // Validate stock value
+        if (typeof stock !== 'number' || stock < 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Stock must be a non-negative number' 
+            });
+        }
+
+        // Find and update medicine
+        const medicine = await Medicine.findById(id);
+        if (!medicine) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Medicine not found' 
+            });
+        }
+
+        // Update stock quantity (keep the existing unit)
+        medicine.stock.quantity = stock;
+        await medicine.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Stock updated successfully',
+            medicine: {
+                _id: medicine._id,
+                name: medicine.name,
+                stock: medicine.stock
+            }
+        });
+    } catch (error) {
+        console.error('Error updating stock:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error updating stock', 
+            error: error.message 
+        });
+    }
+};
+
 module.exports = {
     getMedicines,
     getMedicineDetails,
@@ -388,6 +434,7 @@ module.exports = {
     addMedicineWithImages,
     updateMedicineImages,
     deleteMedicineImage,
+    updateMedicineStock,
     // Export multer upload middleware
     uploadMiddleware: upload
 };

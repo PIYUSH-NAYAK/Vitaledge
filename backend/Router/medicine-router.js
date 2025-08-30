@@ -36,4 +36,10 @@ router.delete('/medicines/:id/images/:imageId',
     medicineController.deleteMedicineImage
 );
 
+// Stock management route (admin only)
+router.put('/medicines/:id/stock', 
+    checkAdminPermission,
+    medicineController.updateMedicineStock
+);
+
 module.exports = router;

@@ -6,6 +6,8 @@ const router = require('./Router/auth-router');
 const adminRouter = require('./Router/admin-router');
 const medicineRouter = require('./Router/medicine-router');
 const otpRouter = require('./Router/otp-router');
+const cartRouter = require('./Router/cart-router');
+const orderRouter = require('./Router/order-router');
 const connectDB = require('./Utils/db');
 
 // ✅ CORS Configuration
@@ -34,6 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', router);
 app.use('/admin', adminRouter);
 app.use('/api', medicineRouter);
+app.use('/api', cartRouter);
+app.use('/api', orderRouter);
 app.use('/otp', otpRouter);
 
 // ✅ Default route

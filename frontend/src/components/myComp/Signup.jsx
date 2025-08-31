@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import InputControls from "../common/Inputcontrols";
 import { useAuth } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -62,7 +62,6 @@ const SignupForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <ToastContainer position="top-right" autoClose={3000} />
       <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient">
         <div className="max-w-md w-screen space-y-8 bg-gray-900 p-10 rounded-xl shadow-md">
           <h2 className="text-center text-3xl font-extrabold text-white">Sign Up</h2>

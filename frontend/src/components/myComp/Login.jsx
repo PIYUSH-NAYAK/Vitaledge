@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // For navigation after successful login
 import InputControls from "../common/Inputcontrols";
 import { useAuth } from "../../store/auth";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import styles for Toastify
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 import Section from "../mycomp2/Section";
@@ -57,17 +57,6 @@ const Login = () => {
 
   return (
     <Section className="pt-[6rem] -mt-[12rem]" crosses>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
       
       <div className="min-h-screen  flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient">

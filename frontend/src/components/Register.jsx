@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { registerUser, signInWithGoogle } from '../firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import InputControls from "./common/Inputcontrols";
@@ -170,17 +170,6 @@ const Register = () => {
         />
       ) : (
         <Section className="pt-[6rem] -mt-[12rem]" crosses>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
       
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient">

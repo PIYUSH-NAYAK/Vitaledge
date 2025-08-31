@@ -231,8 +231,8 @@ const Checkout = () => {
       // Show a consolidated error toast
       const errorMessages = Object.values(newErrors);
       toast.error(`❌ Please fill all required fields correctly (${errorMessages.length} errors)`, {
-        position: 'top-center',
-        autoClose: 5000,
+        position: 'top-right',
+        autoClose: 3000,
         style: {
           background: '#dc2626',
           color: 'white',
@@ -252,40 +252,6 @@ const Checkout = () => {
   };
 
   // Process real blockchain payment
-  // Switch to Sepolia testnet
-  const switchToSepoliaTestnet = async () => {
-    try {
-      // Try to switch to Sepolia testnet
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0xaa36a7' }], // Sepolia testnet chain ID
-      });
-    } catch (switchError) {
-      // If testnet is not added, add it
-      if (switchError.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0xaa36a7',
-              chainName: 'Sepolia Testnet',
-              nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18,
-              },
-              rpcUrls: ['https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-              blockExplorerUrls: ['https://sepolia.etherscan.io/'],
-            }],
-          });
-        } catch (addError) {
-          throw new Error('Failed to add Sepolia testnet');
-        }
-      } else {
-        throw switchError;
-      }
-    }
-  };
 
   // Calculate crypto equivalent when payment method or total changes
   useEffect(() => {
@@ -360,8 +326,8 @@ const Checkout = () => {
       
       // Show clearing toast
       toast.info('🧹 Clearing your cart...', {
-        position: 'top-center',
-        autoClose: 2000,
+        position: 'top-right',
+        autoClose: 1500,
         toastId: 'clearing-cart'
       });
       
@@ -380,14 +346,14 @@ const Checkout = () => {
         toast.update('clearing-cart', {
           render: '✅ Cart cleared successfully!',
           type: 'success',
-          autoClose: 1000
+          autoClose: 1500
         });
       } else {
         console.warn('⚠️ Backend cart clear failed, but continuing...');
         toast.update('clearing-cart', {
           render: '⚠️ Cart partially cleared',
           type: 'warning',
-          autoClose: 1000
+          autoClose: 1500
         });
       }
 
@@ -402,7 +368,7 @@ const Checkout = () => {
       toast.update('clearing-cart', {
         render: '⚠️ Cart cleared locally',
         type: 'warning',
-        autoClose: 1000
+        autoClose: 1500
       });
     }
   };
@@ -425,14 +391,14 @@ const Checkout = () => {
         </div>
       </div>,
       { 
-        autoClose: 8000,
+        autoClose: 5000,
         onClick: () => window.open(explorerUrl, '_blank')
       }
     );
   };
 
   // Function to actually wait for transaction confirmation on Ethereum
-  const waitForTransactionConfirmation = async (txHash, maxWaitTime = 120000) => {
+  const waitForTransactionConfirmation = async (txHash, ethereumProvider, maxWaitTime = 120000) => {
     const startTime = Date.now();
     const checkInterval = 3000; // Check every 3 seconds
     
@@ -440,8 +406,8 @@ const Checkout = () => {
     
     while (Date.now() - startTime < maxWaitTime) {
       try {
-        // Use ethers or web3 to check transaction status
-        const receipt = await window.ethereum.request({
+        // Use the specific ethereum provider to check transaction status
+        const receipt = await ethereumProvider.request({
           method: 'eth_getTransactionReceipt',
           params: [txHash]
         });
@@ -540,21 +506,32 @@ const Checkout = () => {
     console.log('Window.solana:', !!window.solana);
     console.log('Window.ethereum:', !!window.ethereum);
     
-    if (paymentMethod === 'ethereum' && walletType === 'metamask') {
-      // Enhanced MetaMask Ethereum payment with better user feedback
+    if (paymentMethod === 'ethereum') {
+      // Enhanced MetaMask Ethereum payment - check for MetaMask regardless of connected wallet
       if (!window.ethereum) {
-        throw new Error('MetaMask not found. Please install MetaMask extension.');
+        throw new Error('MetaMask not found. Please install MetaMask extension to pay with Ethereum.');
+      }
+
+      // Check if MetaMask is available (in case multiple wallets are installed)
+      let ethereum = window.ethereum;
+      if (window.ethereum.providers) {
+        console.log('🔍 Multiple providers detected, looking for MetaMask...');
+        ethereum = window.ethereum.providers.find(p => p.isMetaMask);
+        if (!ethereum) {
+          throw new Error('MetaMask not found. Please install MetaMask extension to pay with Ethereum.');
+        }
       }
 
       try {
         // Step 1: Show preparation message
         toast.info('⚡ Preparing MetaMask transaction...', { 
+          position: 'top-right',
           autoClose: false,
           toastId: 'preparing-eth-tx'
         });
 
         // Step 2: Ensure MetaMask connection
-        const accounts = await window.ethereum.request({
+        const accounts = await ethereum.request({
           method: 'eth_requestAccounts'
         });
 
@@ -568,7 +545,33 @@ const Checkout = () => {
           type: 'info'
         });
 
-        await switchToSepoliaTestnet();
+        try {
+          // Use the specific ethereum provider for network switching
+          await ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0xaa36a7' }], // Sepolia testnet chain ID
+          });
+        } catch (switchError) {
+          // If testnet is not added, add it
+          if (switchError.code === 4902) {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0xaa36a7',
+                chainName: 'Sepolia Testnet',
+                nativeCurrency: {
+                  name: 'ETH',
+                  symbol: 'ETH',
+                  decimals: 18,
+                },
+                rpcUrls: ['https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
+                blockExplorerUrls: ['https://sepolia.etherscan.io/'],
+              }],
+            });
+          } else {
+            throw switchError;
+          }
+        }
 
         // Step 4: Calculate transaction amount
         toast.update('preparing-eth-tx', {
@@ -602,7 +605,7 @@ const Checkout = () => {
           autoClose: false
         });
 
-        const txHash = await window.ethereum.request({
+        const txHash = await ethereum.request({
           method: 'eth_sendTransaction',
           params: [transactionParameters],
         });
@@ -617,7 +620,7 @@ const Checkout = () => {
         console.log('✅ Transaction sent with hash:', txHash);
 
         // Step 8: Actually check transaction status on blockchain
-        const confirmed = await waitForTransactionConfirmation(txHash);
+        const confirmed = await waitForTransactionConfirmation(txHash, ethereum);
         
         if (confirmed.success) {
           // Dismiss preparation toast
@@ -692,7 +695,8 @@ const Checkout = () => {
 
         // Show user that we're processing the payment
         toast.info('💫 Preparing Solana transaction...', { 
-          autoClose: 3000,
+          position: 'top-right',
+          autoClose: 2000,
           toastId: 'preparing-sol-tx'
         });
 
@@ -747,6 +751,7 @@ const Checkout = () => {
         
         // Show user that signature is needed
         toast.info('✍️ Please approve the transaction in Phantom wallet', { 
+          position: 'top-right',
           autoClose: false,
           toastId: 'awaiting-signature'
         });
@@ -758,6 +763,7 @@ const Checkout = () => {
         
         // Show sending toast
         toast.info('📡 Sending transaction to Solana network...', { 
+          position: 'top-right',
           autoClose: false,
           toastId: 'sending-tx'
         });
@@ -885,8 +891,8 @@ const Checkout = () => {
     // Basic cart check
     if (!cart.items || cart.items.length === 0) {
       toast.error('❌ Your cart is empty!', {
-        position: 'top-center',
-        autoClose: 4000,
+        position: 'top-right',
+        autoClose: 3000,
         style: {
           background: '#dc2626',
           color: 'white',
@@ -917,13 +923,17 @@ const Checkout = () => {
     try {
       // Step 1: Process blockchain payment first
       console.log('💰 Processing payment...');
-      toast.info('🚀 Initiating blockchain payment...', { position: 'top-center', autoClose: false, toastId: 'payment-process' });
+      toast.info('🚀 Initiating blockchain payment...', { position: 'top-right', autoClose: false, toastId: 'payment-process' });
       
       const paymentResult = await processBlockchainPayment();
       console.log('✅ Payment successful:', paymentResult);
 
       // Step 2: Create order with payment confirmation
-      toast.info('📋 Creating your order...', { toastId: 'order-creation' });
+      toast.info('📋 Creating your order...', { 
+        position: 'top-right',
+        autoClose: false,
+        toastId: 'order-creation' 
+      });
       
       const token = await user.getIdToken();
       
@@ -953,7 +963,10 @@ const Checkout = () => {
 
       if (!orderResponse.ok) {
         console.warn('Order creation failed, but payment was successful');
-        toast.success('⚠️ Payment successful! Order details will be processed separately.');
+        toast.success('⚠️ Payment successful! Order details will be processed separately.', {
+          position: 'top-right',
+          autoClose: 4000
+        });
         
         // Clear cart completely since payment was successful
         console.log('🧹 Clearing cart - payment successful despite order creation issue...');
@@ -961,7 +974,10 @@ const Checkout = () => {
         
         // Show thank you message and redirect to orders page
         setTimeout(() => {
-          toast.success('🙏 Thank you for your order! Payment confirmed - check orders page.');
+          toast.success('🙏 Thank you for your order! Payment confirmed - check orders page.', {
+            position: 'top-right',
+            autoClose: 3000
+          });
           navigate('/orders'); // Redirect to orders page
         }, 2000);
         
@@ -976,21 +992,40 @@ const Checkout = () => {
       await clearCartCompletely();
       
       // Step 5: Show success message
-      toast.success(`✅ Order #${orderId} created successfully!`);
+      toast.dismiss('payment-process'); // Dismiss processing toast
+      toast.dismiss('order-creation'); // Dismiss order creation toast
       
-      // Show thank you message after a short delay
-      setTimeout(() => {
-        toast.success('🙏 Thank you for choosing VitalEdge! Redirecting to your order...');
-      }, 1500);
+      // Single comprehensive success message instead of multiple overlapping toasts
+      toast.success(
+        <div>
+          <div>✅ Order #{orderId} created successfully!</div>
+          <div className="text-sm mt-1">🙏 Thank you for choosing VitalEdge!</div>
+        </div>, 
+        {
+          position: 'top-right',
+          autoClose: 3000
+        }
+      );
       
-      // Navigate to specific order page after showing thank you
+      // Navigate to specific order page after showing success message
       setTimeout(() => {
         navigate(`/orders/${orderId}`);
-      }, 2500);
+      }, 2000);
 
     } catch (error) {
       console.error('Error in payment/order process:', error);
-      toast.error(`❌ ${error.message || 'Payment failed'}`);
+      
+      // Dismiss all pending toasts first
+      toast.dismiss('payment-process');
+      toast.dismiss('order-creation');
+      toast.dismiss('preparing-eth-tx');
+      toast.dismiss('preparing-sol-tx');
+      toast.dismiss('clearing-cart');
+      
+      toast.error(`❌ ${error.message || 'Payment failed'}`, {
+        position: 'top-right',
+        autoClose: 4000
+      });
     } finally {
       setProcessing(false);
     }
@@ -1176,6 +1211,45 @@ const Checkout = () => {
               <div className="bg-n-8 border border-n-6 rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-white mb-6">Payment Method</h2>
                 
+                {/* Test Toast Button - Remove after testing */}
+                <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500 rounded-lg">
+                  <button
+                    onClick={() => {
+                      // Test all payment flow toasts
+                      toast.info('🚀 Initiating blockchain payment...', {
+                        position: 'top-right',
+                        autoClose: 2000,
+                        toastId: 'test-1'
+                      });
+                      
+                      setTimeout(() => {
+                        toast.update('test-1', {
+                          render: '💫 Preparing transaction...',
+                          type: 'info',
+                          autoClose: 2000
+                        });
+                      }, 1000);
+                      
+                      setTimeout(() => {
+                        toast.success('✅ Payment confirmed!', {
+                          position: 'top-right',
+                          autoClose: 2000
+                        });
+                      }, 2500);
+                      
+                      setTimeout(() => {
+                        toast.success('🙏 Thank you for your order!', {
+                          position: 'top-right',
+                          autoClose: 3000
+                        });
+                      }, 4000);
+                    }}
+                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    🧪 Test Payment Flow Toasts
+                  </button>
+                </div>
+                
                 <div className="space-y-4 mb-6">
                   <div 
                     className={`border rounded-lg p-4 cursor-pointer transition-colors ${
@@ -1194,7 +1268,7 @@ const Checkout = () => {
                       />
                       <div>
                         <div className="text-white font-medium">Solana (SOL) 🟣</div>
-                        <div className="text-n-4 text-sm">Fast and low-cost transactions</div>
+                        <div className="text-n-4 text-sm">Fast and low-cost transactions • Requires Phantom wallet</div>
                       </div>
                     </div>
                   </div>
@@ -1216,7 +1290,7 @@ const Checkout = () => {
                       />
                       <div>
                         <div className="text-white font-medium">Ethereum (ETH) 🦊</div>
-                        <div className="text-n-4 text-sm">Secure smart contract payments</div>
+                        <div className="text-n-4 text-sm">Secure smart contract payments • Requires MetaMask wallet</div>
                       </div>
                     </div>
                   </div>
@@ -1357,8 +1431,8 @@ const Checkout = () => {
                     
                     if (!walletConnected) {
                       toast.error('❌ Please connect your wallet first!', {
-                        position: 'top-center',
-                        autoClose: 4000,
+                        position: 'top-right',
+                        autoClose: 3000,
                         style: {
                           background: '#dc2626',
                           color: 'white',

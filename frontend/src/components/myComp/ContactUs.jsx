@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaTwitter, FaFacebook, FaGoogle, FaInstagram, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
 const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/contact`;
@@ -48,17 +48,6 @@ const ContactPage = () => {
 
   return (
     <Section className="pt-[6rem] -mt-[5.25rem]" crosses>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
       
       <div className="container mx-auto px-4 py-12">
         {/* Header Section */}

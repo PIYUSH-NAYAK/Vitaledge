@@ -1,23 +1,26 @@
 use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::pubkey::Pubkey;
 
 // Enum representing the instructions our program can handle
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub enum MedWeb3Instruction {
     /// Create a new batch of medicine
-    /// Fields: [batch_id, manufacturer]
-    CreateBatch { batch_id: String, manufacturer: String },
+    /// Fields: [batch_id]
+    /// The manufacturer is taken from the signer account
+    CreateBatch { 
+        batch_id: String,
+    },
 
     /// Transfer ownership of a batch
-    /// Fields: [batch_id, new_owner, signature]
+    /// Fields: [new_owner]
+    /// The batch account is passed as an account, not in data
     TransferOwnership { 
-        batch_id: String, 
-        new_owner: String, 
-        signature: [u8; 64] // Ed25519 signature 
+        new_owner: Pubkey,
     },
 
     /// Verify a batch's traceability
-    /// Fields: [batch_id]
-    VerifyBatch { batch_id: String },
+    /// No additional data needed - batch account is passed
+    VerifyBatch,
 }
 
 impl MedWeb3Instruction {

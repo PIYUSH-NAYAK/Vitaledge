@@ -16,6 +16,8 @@ import Cart from "./components/Cart"; // ✅ Shopping cart
 import Checkout from "./components/Checkout"; // ✅ Checkout page
 import OrderHistory from "./components/OrderHistory"; // ✅ Order history
 import OrderDetails from "./components/OrderDetails"; // ✅ Order details
+import VerifyOrder from "./components/VerifyOrder"; // ✅ Public order verification
+import AdminOrders from "./components/AdminOrders"; // ✅ Admin order management
 import BlockchainMedicine from "./components/BlockchainMedicine"; // ✅ Blockchain medicine
 import AboutPage from "./components/myComp/Aboutus";
 import Error404 from "./components/myComp/errorPage";
@@ -63,6 +65,9 @@ const AppContent = () => {
         <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
+          
+          {/* Public order verification - no auth required */}
+          <Route path="/verify/:orderId" element={<VerifyOrder />} />
           
           {/* Public routes - redirect to home if logged in */}
           <Route
@@ -196,6 +201,14 @@ const AppContent = () => {
             element={
               <AdminProtectedRoute>
                 <ManageStock />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <AdminProtectedRoute>
+                <AdminOrders />
               </AdminProtectedRoute>
             }
           />

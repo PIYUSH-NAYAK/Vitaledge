@@ -33,7 +33,7 @@ const OrderDetails = () => {
       );
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json(); // Response acknowledged
         setOrder(prev => ({ ...prev, orderStatus: 'cancelled' }));
         toast.success('Order cancelled successfully');
       } else {
@@ -291,6 +291,28 @@ const OrderDetails = () => {
                   )}
                 </div>
               </div>
+
+              {/* QR Code for Verification */}
+              {order.qrCode && (
+                <div className="bg-n-8 border border-n-6 rounded-lg p-6 mt-6">
+                  <h2 className="text-xl font-semibold text-white mb-4">Order Verification</h2>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-white p-4 rounded-lg mb-4">
+                      <img 
+                        src={order.qrCode} 
+                        alt="Order QR Code" 
+                        className="w-48 h-48"
+                      />
+                    </div>
+                    <p className="text-n-4 text-sm text-center mb-2">
+                      Scan this QR code to verify your order
+                    </p>
+                    <p className="text-n-3 text-xs text-center">
+                      Share this with delivery partner for authentication
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Order Summary Sidebar */}
@@ -325,10 +347,10 @@ const OrderDetails = () => {
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   <Button
-                    onClick={() => navigate(`/orders/${order.orderId}/track`)}
+                    onClick={() => navigate('/orders')}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
                   >
-                    Track Order
+                    Back to Orders
                   </Button>
                   
                   {order.orderStatus === 'delivered' && (

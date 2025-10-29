@@ -66,31 +66,22 @@ const AddMedicine = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log('🚨 BUTTON CLICKED - FUNCTION STARTED'); // Most basic debug
     e.preventDefault();
-    
-    console.log('🔍 Submit button clicked'); // Debug log
     
     if (selectedImages.length === 0) {
       toast.error('Please select at least one image');
       return;
     }
-
-    console.log('✅ Images selected:', selectedImages.length); // Debug log
     
     setLoading(true);
 
     try {
-      console.log('📤 Starting form submission...'); // Debug log
-      // Prepare form data for multipart upload
       const uploadData = new FormData();
       
-      // Add images
       selectedImages.forEach(image => {
         uploadData.append('images', image);
       });
 
-      // Prepare medicine data
       const medicineData = {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
@@ -106,16 +97,9 @@ const AddMedicine = () => {
         }
       };
 
-      console.log('📋 Form data prepared:', medicineData); // Debug log
-      console.log('🌐 Backend URL:', import.meta.env.VITE_APP_BACKEND_URL); // Debug log
-
       uploadData.append('medicineData', JSON.stringify(medicineData));
 
-      // Get Firebase token
       const token = await user.getIdToken();
-      console.log('🔑 Firebase token obtained'); // Debug log
-
-      console.log('📡 Making API request...'); // Debug log
       const response = await fetch(
         `${import.meta.env.VITE_APP_BACKEND_URL}/api/medicines/upload`,
         {
@@ -127,20 +111,17 @@ const AddMedicine = () => {
         }
       );
 
-      console.log('📡 Response status:', response.status); // Debug log
-      console.log('📡 Response ok:', response.ok); // Debug log
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('❌ API Error:', errorData); // Debug log
         throw new Error(errorData.message || 'Failed to add medicine');
       }
 
       const responseData = await response.json();
-      console.log('✅ Success response:', responseData); // Debug log
       toast.success('Medicine added successfully!');
       
-      // Reset form
+      const event = new window.CustomEvent('medicineAdded', { detail: responseData.medicine });
+      window.dispatchEvent(event);
+      
       setFormData({
         name: '',
         genericName: '',

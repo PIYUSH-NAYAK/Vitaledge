@@ -3,6 +3,7 @@ const Cart = require('../Models/Cart');
 const Medicine = require('../Models/Medicine');
 const { connection, wallet, web3 } = require('../Utils/solanaConnection');
 const blockchainService = require('../Utils/blockchainService');
+const QRCode = require('qrcode');
 
 // ✅ Create new order
 const createOrder = async (req, res) => {
@@ -21,23 +22,15 @@ const createOrder = async (req, res) => {
             prescriptionUrl
         } = req.body;
 
-        console.log('📋 Order data received:', { shippingAddress, paymentDetails, notes });
-
-        // Get user's cart
-        console.log('🔍 Finding cart for user:', userId);
         const cart = await Cart.findOne({ userId }).populate('items.medicineId');
         
         if (!cart || cart.items.length === 0) {
-            console.log('❌ Cart is empty or not found');
             return res.status(400).json({
                 success: false,
                 message: 'Cart is empty'
             });
         }
 
-        console.log('📦 Cart items found:', cart.items.length);
-
-        // Validate stock availability
         const orderItems = [];
         let subtotal = 0;
         let prescriptionRequired = false;
@@ -86,11 +79,9 @@ const createOrder = async (req, res) => {
 
         // Generate unique order ID
         const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        console.log('🆔 Generated orderId:', orderId);
 
-        // Create order
         const order = new Order({
-            orderId,  // Add the missing orderId
+            orderId,
             userId,
             userEmail,
             medicines: orderItems,
@@ -124,9 +115,7 @@ const createOrder = async (req, res) => {
             }
         });
 
-        // Create blockchain batch for the order
         try {
-            console.log('🔗 Attempting blockchain batch creation...');
             const { wallet } = require('../Utils/solanaConnection');
             
             const batchResult = await blockchainService.createMedicineBatch(
@@ -134,35 +123,57 @@ const createOrder = async (req, res) => {
                 wallet.publicKey.toString()
             );
             
-            console.log('✅ Blockchain batch result:', batchResult);
-            
             if (batchResult && batchResult.success) {
                 order.blockchain = {
                     batchId: batchResult.batchAccount,
                     contractAddress: batchResult.batchAccount,
-                    blockNumber: 0, // Will be filled when transaction is confirmed
+                    blockNumber: 0,
                     gasUsed: 0
                 };
-                console.log('✅ Blockchain data added to order');
             }
         } catch (blockchainError) {
-            console.error('⚠️  Blockchain batch creation failed:', blockchainError.message);
-            console.log('📦 Continuing with order creation without blockchain...');
-            // Continue with order creation even if blockchain fails
+            console.error('Blockchain batch creation failed:', blockchainError.message);
+            try {
+                const BlockchainJob = require('../Models/BlockchainJob');
+                const nextAttempt = new Date(Date.now() + 60 * 1000);
+                await BlockchainJob.create({
+                    jobType: 'createBatch',
+                    orderId: order.orderId,
+                    payload: { batchId: order.orderId, manufacturer: wallet.publicKey.toString() },
+                    attempts: 0,
+                    maxAttempts: 5,
+                    status: 'pending',
+                    nextAttemptAt: nextAttempt
+                });
+            } catch (jobErr) {
+                console.error('Failed to create blockchain job:', jobErr.message);
+            }
+        }
+
+        try {
+            const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify/${order.orderId}`;
+            const qrCodeDataURL = await QRCode.toDataURL(verificationUrl, {
+                errorCorrectionLevel: 'H',
+                type: 'image/png',
+                width: 300,
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            });
+            
+            order.qrCode = qrCodeDataURL;
+        } catch (qrError) {
+            console.error('QR code generation failed:', qrError.message);
         }
 
         await order.save();
         
-        console.log('✅ Order created successfully!');
-        console.log('📊 Order details:', {
-            orderId: order.orderId,
-            orderStatus: order.orderStatus,
-            paymentStatus: order.paymentDetails.paymentStatus,
-            total: order.pricing.total
-        });
-
-        // Clear cart after successful order
-        await cart.clearCart();
+        await Cart.findOneAndUpdate(
+            { userId },
+            { items: [] }
+        );
 
         res.status(201).json({
             success: true,
@@ -177,8 +188,7 @@ const createOrder = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Error creating order:', error);
-        console.error('Stack trace:', error.stack);
+        console.error('Error creating order:', error);
         res.status(500).json({
             success: false,
             message: 'Error creating order',
@@ -418,11 +428,75 @@ const cancelOrder = async (req, res) => {
     }
 };
 
+// ✅ Verify order (public endpoint - no authentication required)
+const verifyOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        const order = await Order.findOne({ orderId })
+            .populate('medicines.medicineId', 'name images.primary category')
+            .select('-userId -userEmail'); // Don't expose user details publicly
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+
+        // Optionally enrich blockchain data with on-chain decoded information
+        let onChainData = null;
+        try {
+            if (order.blockchain && order.blockchain.batchId) {
+                const onchain = await blockchainService.verifyBatch(order.blockchain.batchId);
+                if (onchain && onchain.success) {
+                    onChainData = onchain.decoded || null;
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching on-chain batch data for verify endpoint:', e);
+        }
+
+        // Return limited information for public verification
+        res.json({
+            success: true,
+            order: {
+                orderId: order.orderId,
+                orderStatus: order.orderStatus,
+                createdAt: order.createdAt,
+                medicines: order.medicines,
+                pricing: order.pricing,
+                shippingAddress: order.shippingAddress,
+                paymentDetails: {
+                    method: order.paymentDetails.method,
+                    transactionHash: order.paymentDetails.transactionHash,
+                    blockchainNetwork: order.paymentDetails.blockchainNetwork,
+                    paymentStatus: order.paymentDetails.paymentStatus
+                },
+                tracking: order.tracking,
+                blockchain: {
+                    ...order.blockchain,
+                    onChainData
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error verifying order:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying order',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createOrder,
     getUserOrders,
     getOrderDetails,
     processBlockchainPayment,
     trackOrder,
-    cancelOrder
+    cancelOrder,
+    verifyOrder
 };

@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaUsers, FaUserPlus, FaUserMinus } from "react-icons/fa";
+import { FaUsers, FaUserPlus, FaUserMinus, FaBoxes, FaPills, FaChartBar } from "react-icons/fa";
+import Button from "./mycomp2/Button";
 
 const AdminPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -160,69 +163,88 @@ const AdminPage = () => {
           </div>
 
           {/* Quick Actions Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Medicine Management */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-2xl font-semibold text-white mb-4">
-                Medicine Management
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {/* Order Management */}
+            <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/10 border border-blue-500/30 rounded-lg p-6 hover:shadow-lg hover:shadow-blue-500/20 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <FaBoxes className="text-blue-400 text-3xl" />
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Order Management
               </h2>
-              <p className="text-gray-300 mb-6">
-                Add new medicines to the catalog with images and detailed information.
+              <p className="text-gray-300 mb-6 text-sm">
+                View recent orders, track shipments, and monitor deliveries.
               </p>
-              <div className="space-y-3">
-                <a
-                  href="/admin/add-medicine"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              <Button
+                onClick={() => navigate('/medicines')}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                <FaBoxes className="mr-2" />
+                View Catalog
+              </Button>
+            </div>
+
+            {/* Medicine Management */}
+            <div className="bg-gradient-to-br from-green-600/20 to-green-800/10 border border-green-500/30 rounded-lg p-6 hover:shadow-lg hover:shadow-green-500/20 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <FaPills className="text-green-400 text-3xl" />
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Medicine Catalog
+              </h2>
+              <p className="text-gray-300 mb-6 text-sm">
+                Add new medicines, manage inventory, and update stock levels.
+              </p>
+              <div className="space-y-2">
+                <Button
+                  onClick={() => navigate('/admin/add-medicine')}
+                  className="w-full bg-green-600 hover:bg-green-700"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
                   Add New Medicine
-                </a>
-                <a
-                  href="/admin/manage-stock"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                </Button>
+                <Button
+                  onClick={() => navigate('/admin/manage-stock')}
+                  className="w-full bg-green-500 hover:bg-green-600"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v9a3 3 0 01-3 3H6a3 3 0 01-3-3V7a1 1 0 01-1-1V5a1 1 0 011-1h4z" />
-                  </svg>
                   Manage Stock
-                </a>
-                <a
-                  href="/medicines"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                  View All Medicines
-                </a>
+                </Button>
               </div>
             </div>
 
-            {/* User Management Quick Actions */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-2xl font-semibold text-white mb-4">
-                User Management
+            {/* Analytics */}
+            <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/10 border border-purple-500/30 rounded-lg p-6 hover:shadow-lg hover:shadow-purple-500/20 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <FaChartBar className="text-purple-400 text-3xl" />
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Analytics & Reports
               </h2>
-              <p className="text-gray-300 mb-6">
-                Manage user permissions and admin privileges.
+              <p className="text-gray-300 mb-6 text-sm">
+                View sales analytics, order statistics, and generate reports.
               </p>
-              <button
-                onClick={toggleUserList}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              <Button
+                onClick={() => navigate('/admin/orders')}
+                className="w-full bg-purple-600 hover:bg-purple-700"
               >
-                <FaUsers />
-                {showUserList ? "Hide Users" : "View All Users"}
-              </button>
+                View Dashboard
+              </Button>
             </div>
           </div>
 
-          {/* User Management Details */}
+          {/* User Management Section */}
           <div className="bg-gray-800 rounded-lg p-6 mb-8">
-            <h3 className="text-xl font-semibold text-white mb-6">
-              Grant Admin Privileges
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+                <FaUsers className="text-purple-400" />
+                User Management
+              </h2>
+              <button
+                onClick={toggleUserList}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+              >
+                {showUserList ? "Hide Users" : "View All Users"}
+              </button>
+            </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <input
                 type="email"

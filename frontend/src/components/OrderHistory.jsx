@@ -19,11 +19,9 @@ const OrderHistory = () => {
       return;
     }
 
-    console.log('🔄 Attempting to cancel order:', orderId);
     setCancellingOrders(prev => new Set(prev).add(orderId));
     try {
       const token = await user.getIdToken();
-      console.log('🔑 Token obtained, making cancel request to:', `${import.meta.env.VITE_APP_BACKEND_URL}/api/orders/${orderId}/cancel`);
       const response = await fetch(
         `${import.meta.env.VITE_APP_BACKEND_URL}/api/orders/${orderId}/cancel`,
         {
@@ -36,7 +34,6 @@ const OrderHistory = () => {
       );
 
       if (response.ok) {
-        console.log('✅ Order cancelled successfully');
         setOrders(prev => prev.map(order => 
           order.orderId === orderId 
             ? { ...order, orderStatus: 'cancelled' }
@@ -65,6 +62,7 @@ const OrderHistory = () => {
   const fetchOrders = useCallback(async (page = 1, status = 'all') => {
     try {
       const token = await user.getIdToken();
+      // eslint-disable-next-line no-undef
       const queryParams = new URLSearchParams({
         page: page.toString(),
         limit: '10'
@@ -252,13 +250,7 @@ const OrderHistory = () => {
                         to={`/orders/${order.orderId}`}
                         className="text-blue-500 hover:text-blue-400 text-sm font-medium"
                       >
-                        View Details
-                      </Link>
-                      <Link
-                        to={`/orders/${order.orderId}/track`}
-                        className="text-green-500 hover:text-green-400 text-sm font-medium"
-                      >
-                        Track Order
+                        View Details & Track
                       </Link>
                       {order.paymentDetails?.transactionHash && (
                         <a

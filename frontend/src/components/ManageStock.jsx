@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
-import { FaPlus, FaMinus, FaEdit, FaSearch } from "react-icons/fa";
+import { FaPlus, FaMinus, FaEdit, FaSearch, FaSync } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 const ManageStock = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,36 +14,46 @@ const ManageStock = () => {
   const [stockToAdd, setStockToAdd] = useState("");
 
   // Fetch medicines
-  useEffect(() => {
-    const fetchMedicines = async () => {
-      try {
-        console.log("Making API call to:", `${import.meta.env.VITE_APP_BACKEND_URL}/api/medicines`);
-        const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/medicines`);
-        const data = await response.json();
-        
-        console.log("API Response:", data);
-        
-        if (response.ok && data.medicines) {
-          console.log("Setting medicines from data.medicines:", data.medicines.length);
-          setMedicines(data.medicines);
-        } else if (response.ok && Array.isArray(data)) {
-          // Handle case where API returns array directly
-          console.log("Setting medicines from array:", data.length);
-          setMedicines(data);
-        } else {
-          console.error("API response:", data);
-          toast.error("Failed to fetch medicines");
-        }
-      } catch (error) {
-        console.error("Error fetching medicines:", error);
-        toast.error("Error loading medicines");
-      } finally {
-        setLoading(false);
+  const fetchMedicines = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/medicines`);
+      const data = await response.json();
+      
+      if (response.ok && data.medicines) {
+        setMedicines(data.medicines);
+      } else if (response.ok && Array.isArray(data)) {
+        setMedicines(data);
+      } else {
+        toast.error("Failed to fetch medicines");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching medicines:", error);
+      toast.error("Error loading medicines");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMedicines();
-  }, []);
+    
+    const handleFocus = () => {
+      fetchMedicines();
+    };
+    
+    const handleMedicineAdded = () => {
+      fetchMedicines();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('medicineAdded', handleMedicineAdded);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('medicineAdded', handleMedicineAdded);
+    };
+  }, [location]); // Re-run when location changes (navigating to this page)
 
   // Update stock
   const handleUpdateStock = async (medicineId, newStock) => {
@@ -69,10 +81,10 @@ const ManageStock = () => {
       const data = await response.json();
       
       if (data.success) {
-        // Update local state
-        setMedicines(medicines.map(med => 
-          med._id === medicineId ? { ...med, stock: parseInt(newStock) } : med
-        ));
+        const updatedMedicines = medicines.map(med => 
+          med._id === medicineId ? { ...med, stock: { ...med.stock, quantity: parseInt(newStock) } } : med
+        );
+        setMedicines(updatedMedicines);
         toast.success("Stock updated successfully");
         setSelectedMedicine(null);
         setStockToAdd("");
@@ -94,7 +106,7 @@ const ManageStock = () => {
   // Filter medicines based on search
   const filteredMedicines = medicines.filter(medicine =>
     medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    medicine.company.toLowerCase().includes(searchTerm.toLowerCase())
+    (medicine.manufacturer && medicine.manufacturer.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {
@@ -110,8 +122,21 @@ const ManageStock = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Stock Management</h1>
-          <p className="text-gray-300">Manage medicine inventory and stock levels</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-4">Stock Management</h1>
+              <p className="text-gray-300">Manage medicine inventory and stock levels</p>
+            </div>
+            <button
+              onClick={() => fetchMedicines()}
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+              title="Refresh medicine list"
+            >
+              <FaSync className={loading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -120,7 +145,7 @@ const ManageStock = () => {
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search medicines by name or company..."
+              placeholder="Search medicines by name or manufacturer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
@@ -135,7 +160,7 @@ const ManageStock = () => {
               {/* Medicine Info */}
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-white mb-2">{medicine.name}</h3>
-                <p className="text-gray-300 text-sm mb-1">Company: {medicine.company}</p>
+                <p className="text-gray-300 text-sm mb-1">Manufacturer: {medicine.manufacturer}</p>
                 <p className="text-gray-300 text-sm">Price: ₹{medicine.price?.discountedPrice || medicine.price?.mrp || 'N/A'}</p>
               </div>
 
@@ -214,7 +239,7 @@ const ManageStock = () => {
                   <button
                     onClick={() => {
                       setSelectedMedicine(medicine._id);
-                      setStockToAdd(medicine.stock.toString());
+                      setStockToAdd((medicine.stock?.quantity || 0).toString());
                     }}
                     className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >

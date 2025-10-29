@@ -5,11 +5,11 @@ import { Buffer } from 'buffer';
 window.Buffer = Buffer;
 
 // Your deployed contract program ID
-const PROGRAM_ID = new PublicKey('DBL4hbkkDsVHwDBSKGmA4ivneVR8Zf5RHmYHpE1XrR8x');
+const PROGRAM_ID = new PublicKey('7e1SU615mkoWoQsx2HxxujKj9tU8QRF1hHD8gUiWuvWQ');
 // Use devnet for testing, mainnet for production
 const NETWORK_URL = import.meta.env.PROD 
   ? 'https://api.mainnet-beta.solana.com' 
-  : 'https://api.devnet.solana.com'; // Changed from localhost to devnet
+  : 'https://api.devnet.solana.com';
 
 class SolanaBlockchainService {
     constructor() {

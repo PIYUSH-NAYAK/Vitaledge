@@ -453,46 +453,57 @@ const Checkout = () => {
   };
 
   // Function to wait for Solana transaction confirmation
-  const waitForSolanaTransactionConfirmation = async (signature, connection, maxWaitTime = 120000) => {
-    const startTime = Date.now();
-    const checkInterval = 3000;
-    
+  const waitForSolanaTransactionConfirmation = async (signature, connection) => {
     console.log(`🔍 Waiting for Solana transaction confirmation: ${signature}`);
     
-    while (Date.now() - startTime < maxWaitTime) {
+    try {
+      // Use confirmTransaction which is more reliable than polling
+      const latestBlockhash = await connection.getLatestBlockhash();
+      
+      const confirmation = await connection.confirmTransaction({
+        signature: signature,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+      }, 'confirmed');
+      
+      if (confirmation.value.err) {
+        console.log('❌ Solana transaction failed:', confirmation.value.err);
+        return {
+          success: false,
+          error: confirmation.value.err
+        };
+      }
+      
+      console.log('✅ Solana transaction confirmed!');
+      return {
+        success: true,
+        confirmationStatus: 'confirmed',
+        slot: confirmation.context.slot
+      };
+      
+    } catch (error) {
+      console.error('Error confirming Solana transaction:', error);
+      
+      // Fallback: Check if transaction exists even if confirmation failed
       try {
         const status = await connection.getSignatureStatus(signature);
-        
-        if (status && status.value) {
-          if (status.value.confirmationStatus === 'confirmed' || status.value.confirmationStatus === 'finalized') {
-            console.log('✅ Solana transaction confirmed!');
-            return {
-              success: true,
-              confirmationStatus: status.value.confirmationStatus,
-              slot: status.value.slot
-            };
-          } else if (status.value.err) {
-            console.log('❌ Solana transaction failed:', status.value.err);
-            return {
-              success: false,
-              error: status.value.err
-            };
-          }
+        if (status && status.value && !status.value.err) {
+          console.log('✅ Transaction found on-chain (using fallback check)');
+          return {
+            success: true,
+            confirmationStatus: status.value.confirmationStatus || 'processed',
+            slot: status.value.slot
+          };
         }
-        
-        console.log('⏳ Solana transaction still pending...');
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-        
-      } catch (error) {
-        console.error('Error checking Solana transaction status:', error);
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
+      } catch (fallbackError) {
+        console.error('Fallback status check also failed:', fallbackError);
       }
+      
+      return {
+        success: false,
+        error: error.message || 'Transaction confirmation failed'
+      };
     }
-    
-    return {
-      success: false,
-      error: 'Transaction confirmation timeout'
-    };
   };
 
   const processBlockchainPayment = async () => {

@@ -3,8 +3,8 @@ import * as borsh from 'borsh';
 import { Buffer } from 'buffer';
 
 // Contract configuration
-export const PROGRAM_ID = new PublicKey('DBL4hbkkDsVHwDBSKGmA4ivneVR8Zf5RHmYHpE1XrR8x');
-export const NETWORK_URL = 'http://localhost:8899'; // Change to devnet/mainnet as needed
+export const PROGRAM_ID = new PublicKey('7e1SU615mkoWoQsx2HxxujKj9tU8QRF1hHD8gUiWuvWQ');
+export const NETWORK_URL = 'https://api.devnet.solana.com';
 
 // Instruction schemas
 class CreateBatchInstruction {

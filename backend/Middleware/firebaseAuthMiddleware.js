@@ -37,35 +37,25 @@ const firebaseAuthMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     
-    console.log('🔍 Auth Header:', authHeader ? 'Present' : 'Missing');
-    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('❌ No valid authorization header');
       return res.status(401).json({ error: 'No token provided' });
     }
     
     const token = authHeader.split(' ')[1];
-    console.log('🔑 Token received, length:', token?.length);
     
-    // Check cache first
     const cached = tokenCache.get(token);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-      console.log('⚡ Using cached token for user:', cached.user.email);
       req.firebaseUser = cached.user;
       return next();
     }
     
-    // Verify the Firebase ID token
     const decodedToken = await admin.auth().verifyIdToken(token);
     
-    console.log('✅ Token verified for user:', decodedToken.email);
-    
-    // Add user info to request object
     const user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
       name: decodedToken.name || decodedToken.email,
-      customClaims: decodedToken // The claims are in the decoded token itself
+      customClaims: decodedToken
     };
     
     req.firebaseUser = user;

@@ -37,8 +37,11 @@ try {
   wallet = web3.Keypair.generate();
 }
 
-// ✅ Connect to Solana Network - Use localhost for deployed contract
-const connection = new web3.Connection('http://localhost:8899', 'confirmed');
+// ✅ Connect to Solana Devnet - Where your contract is deployed
+const connection = new web3.Connection('https://api.devnet.solana.com', 'confirmed');
+
+console.log('🌐 Connected to Solana Devnet');
+console.log('📍 Wallet Address:', wallet.publicKey.toString());
 
 // ✅ Exporting connection and wallet
 module.exports = {

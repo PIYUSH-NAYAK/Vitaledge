@@ -138,6 +138,10 @@ const orderSchema = new mongoose.Schema({
         contractAddress: String,
         blockNumber: Number,
         gasUsed: Number
+    },
+    qrCode: {
+        type: String, // Base64 encoded QR code image
+        default: null
     }
 }, {
     timestamps: true

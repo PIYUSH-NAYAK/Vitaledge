@@ -1,6 +1,6 @@
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
 
-const PROGRAM_ID = new PublicKey('DBL4hbkkDsVHwDBSKGmA4ivneVR8Zf5RHmYHpE1XrR8x');
+const PROGRAM_ID = new PublicKey('7e1SU615mkoWoQsx2HxxujKj9tU8QRF1hHD8gUiWuvWQ');
 
 export class SolanaService {
     constructor() {

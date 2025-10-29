@@ -1,14 +1,24 @@
 const mongoose = require('mongoose');
-// const dotenv = require('dotenv');
+require('dotenv').config();
 
-const URI = process.env.URI;
+// Support common env var names for MongoDB connection string
+const URI = process.env.URI || process.env.MONGODB_URI || process.env.DATABASE_URL || process.env.MONGO_URI;
 
 const connectDB = async () => {
+    if (!URI) {
+        const msg = 'MongoDB connection string is not set. Please set one of: URI, MONGODB_URI, MONGO_URI or DATABASE_URL in your environment or .env file.';
+        console.error(msg);
+        throw new Error(msg);
+    }
+
     try {
         await mongoose.connect(URI);
-        console.log('Database Connected');
+
+      
+        console.log('✅ Database Connected');
     } catch (error) {
-        console.log(error);
+        console.error('❌ Database connection error:', error.message || error);
+        throw error;
     }
 }
 

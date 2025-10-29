@@ -8,6 +8,7 @@ const medicineRouter = require('./Router/medicine-router');
 const otpRouter = require('./Router/otp-router');
 const cartRouter = require('./Router/cart-router');
 const orderRouter = require('./Router/order-router');
+const { verifyOrder } = require('./Router/order-controller');
 const connectDB = require('./Utils/db');
 
 // ✅ CORS Configuration
@@ -31,6 +32,18 @@ app.use(cors(corsOptions));
 // ✅ Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ Public Routes (NO authentication required) - MUST be before other routes
+app.get('/api/orders/verify/:orderId', verifyOrder);
+
+// ✅ Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        service: 'vitaledge-backend'
+    });
+});
 
 // ✅ Use Routes
 app.use('/', router);

@@ -100,15 +100,20 @@ const createMedicineBatch = async (batchId, manufacturerAddress) => {
         console.log('Account size:', accountSize, 'bytes');
         console.log('Rent:', rentExemptAmount / web3.LAMPORTS_PER_SOL, 'SOL');
 
-    // Serialize the CreateBatch variant data (just the batch_id)
-    const variantData = serialize(createBatchSchema, new CreateBatchData({ batch_id: batchId }));
+        // Manual Borsh serialization for String type
+        // Borsh String format: [length: u32 LE][string bytes]
+        const batchIdBuffer = Buffer.from(batchId, 'utf8');
+        const batchIdLengthBuffer = Buffer.alloc(4);
+        batchIdLengthBuffer.writeUInt32LE(batchIdBuffer.length, 0);
+        const variantData = Buffer.concat([batchIdLengthBuffer, batchIdBuffer]);
 
-    // Rust enum encoding: variant_index (u8) + variant_data
-    // CreateBatch is the first variant (index 0)
-    const variantIndex = Buffer.from([0]); // 0 = CreateBatch
-    const instructionBuffer = Buffer.concat([variantIndex, Buffer.from(variantData)]);
+        // Rust enum encoding: variant_index (u8) + variant_data
+        // CreateBatch is the first variant (index 0)
+        const variantIndex = Buffer.from([0]); // 0 = CreateBatch
+        const instructionBuffer = Buffer.concat([variantIndex, variantData]);
 
         console.log('Variant index: 0 (CreateBatch)');
+        console.log('Batch ID length:', batchIdBuffer.length);
         console.log('Variant data length:', variantData.length, 'bytes');
         console.log('Total instruction length:', instructionBuffer.length, 'bytes');
 

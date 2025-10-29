@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-export default function WalletConnectButton() {
+export default function WalletConnectButton({ onWalletChange }) {
   const [account, setAccount] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletType, setWalletType] = useState(null); // MetaMask or Phantom
@@ -20,43 +20,98 @@ export default function WalletConnectButton() {
 
   // ✅ Check if wallets are installed
   const isPhantomInstalled = () => {
-    const hasPhantom = typeof window !== "undefined" && window.solana && window.solana.isPhantom;
-    console.log("🔍 Phantom detection:", hasPhantom);
-    return hasPhantom;
+    return typeof window !== "undefined" && window.solana && window.solana.isPhantom;
   };
 
   const isMetaMaskInstalled = () => {
     const hasEthereum = typeof window !== "undefined" && window.ethereum;
-    const isMetaMask = hasEthereum && (window.ethereum.isMetaMask || window.ethereum.providers?.some(p => p.isMetaMask));
-    console.log("🔍 MetaMask detection:", isMetaMask, "| Ethereum:", !!hasEthereum);
-    return isMetaMask;
+    return hasEthereum && (window.ethereum.isMetaMask || window.ethereum.providers?.some(p => p.isMetaMask));
   };
 
-  // ✅ Debug wallet availability on component mount
+  // ✅ Setup wallet event listeners only once on mount
   useEffect(() => {
-    console.log("🔍 Checking wallet availability...");
-    console.log("Window object:", typeof window);
-    console.log("Window.solana:", window?.solana);
-    console.log("Window.ethereum:", window?.ethereum);
-    console.log("Window.ethereum.isMetaMask:", window?.ethereum?.isMetaMask);
-    console.log("Window.ethereum.providers:", window?.ethereum?.providers);
-    
-    // Check if MetaMask is in providers array
-    if (window?.ethereum?.providers) {
-      const metamaskProvider = window.ethereum.providers.find(p => p.isMetaMask);
-      console.log("MetaMask provider found in array:", !!metamaskProvider);
+    let phantomDisconnectListener;
+    let phantomAccountChangeListener;
+    let metamaskAccountChangeListener;
+
+    // Setup Phantom event listeners
+    if (window?.solana) {
+      phantomDisconnectListener = () => {
+        console.log("🔌 Phantom disconnected");
+        setAccount(null);
+        setWalletType(null);
+        localStorage.removeItem("connectedAccount");
+        localStorage.removeItem("walletType");
+        onWalletChange?.({ connected: false, address: null, type: null });
+      };
+
+      phantomAccountChangeListener = (publicKey) => {
+        if (publicKey) {
+          console.log("🔄 Phantom account changed");
+          const newAddress = publicKey.toString();
+          setAccount(newAddress);
+          setWalletType("phantom");
+          localStorage.setItem("connectedAccount", newAddress);
+          localStorage.setItem("walletType", "phantom");
+          onWalletChange?.({ connected: true, address: newAddress, type: "phantom" });
+        } else {
+          console.log("🔌 Phantom account disconnected");
+          setAccount(null);
+          setWalletType(null);
+          localStorage.removeItem("connectedAccount");
+          localStorage.removeItem("walletType");
+          onWalletChange?.({ connected: false, address: null, type: null });
+        }
+      };
+
+      window.solana.on("disconnect", phantomDisconnectListener);
+      window.solana.on("accountChanged", phantomAccountChangeListener);
     }
-    
-    console.log("Phantom installed:", isPhantomInstalled());
-    console.log("MetaMask installed:", isMetaMaskInstalled());
-    
-    // Try to detect MetaMask with different methods
-    console.log("--- MetaMask Detection Methods ---");
-    console.log("Method 1 - Direct isMetaMask:", window?.ethereum?.isMetaMask);
-    console.log("Method 2 - Provider array:", window?.ethereum?.providers?.some(p => p.isMetaMask));
-    console.log("Method 3 - Constructor name:", window?.ethereum?.constructor?.name);
-    
-  }, []);
+
+    // Setup MetaMask event listeners
+    if (window?.ethereum) {
+      metamaskAccountChangeListener = (accounts) => {
+        if (accounts.length === 0) {
+          console.log("🔌 MetaMask disconnected");
+          setAccount(null);
+          setWalletType(null);
+          localStorage.removeItem("connectedAccount");
+          localStorage.removeItem("walletType");
+          onWalletChange?.({ connected: false, address: null, type: null });
+        } else {
+          console.log("🔄 MetaMask account changed");
+          setAccount(accounts[0]);
+          setWalletType("metamask");
+          localStorage.setItem("connectedAccount", accounts[0]);
+          localStorage.setItem("walletType", "metamask");
+          onWalletChange?.({ connected: true, address: accounts[0], type: "metamask" });
+        }
+      };
+
+      window.ethereum.on("accountsChanged", metamaskAccountChangeListener);
+    }
+
+    // Cleanup function
+    return () => {
+      if (window?.solana && phantomDisconnectListener && phantomAccountChangeListener) {
+        window.solana.off("disconnect", phantomDisconnectListener);
+        window.solana.off("accountChanged", phantomAccountChangeListener);
+      }
+      if (window?.ethereum && metamaskAccountChangeListener) {
+        window.ethereum.removeListener("accountsChanged", metamaskAccountChangeListener);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount - onWalletChange is intentionally omitted
+
+  // Notify parent of wallet connection state when account or walletType changes
+  useEffect(() => {
+    if (account && walletType && onWalletChange) {
+      onWalletChange({ connected: true, address: account, type: walletType });
+    } else if (!account && onWalletChange) {
+      onWalletChange({ connected: false, address: null, type: null });
+    }
+  }, [account, walletType, onWalletChange]);
 
   // ✅ Connect to Phantom Wallet
   const connectPhantom = async () => {
@@ -69,8 +124,26 @@ export default function WalletConnectButton() {
     try {
       setIsConnecting(true);
       
+      // Check if already connected
+      if (window.solana.isConnected) {
+        console.log("🔄 Phantom already connected, disconnecting first...");
+        try {
+          await window.solana.disconnect();
+          // Wait a bit for disconnect to complete
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (disconnectError) {
+          console.log("⚠️ Disconnect error (continuing anyway):", disconnectError);
+        }
+      }
+      
       // Request connection to Phantom
-      const response = await window.solana.connect({ onlyIfTrusted: false });
+      console.log("🔄 Requesting Phantom connection...");
+      const response = await window.solana.connect();
+      
+      if (!response || !response.publicKey) {
+        throw new Error("No public key returned from Phantom");
+      }
+      
       const phantomAddress = response.publicKey.toString();
 
       setAccount(phantomAddress);
@@ -78,14 +151,25 @@ export default function WalletConnectButton() {
       localStorage.setItem("connectedAccount", phantomAddress);
       localStorage.setItem("walletType", "phantom");
 
+      // Notify parent component
+      if (onWalletChange) {
+        onWalletChange({ connected: true, address: phantomAddress, type: "phantom" });
+      }
+
       toast.success("Successfully connected to Phantom!");
       console.log("✅ Connected to Phantom:", phantomAddress);
     } catch (error) {
       console.error("❌ Error connecting to Phantom:", error);
-      if (error.code === 4001) {
+      
+      // Better error messages
+      if (error.code === 4001 || error.message?.includes("User rejected")) {
         toast.error("Connection rejected by user");
+      } else if (error.message?.includes("already pending")) {
+        toast.error("Connection request already pending. Please check Phantom wallet.");
+      } else if (error.message?.includes("Unexpected error")) {
+        toast.error("Please unlock your Phantom wallet and try again");
       } else {
-        toast.error("Failed to connect to Phantom wallet");
+        toast.error(`Failed to connect: ${error.message || "Unknown error"}`);
       }
     } finally {
       setIsConnecting(false);
@@ -131,6 +215,11 @@ export default function WalletConnectButton() {
         setWalletType("metamask");
         localStorage.setItem("connectedAccount", accounts[0]);
         localStorage.setItem("walletType", "metamask");
+
+        // Notify parent component
+        if (onWalletChange) {
+          onWalletChange({ connected: true, address: accounts[0], type: "metamask" });
+        }
 
         toast.success("Successfully connected to MetaMask!");
         console.log("✅ Connected to MetaMask:", accounts[0]);
@@ -218,6 +307,12 @@ export default function WalletConnectButton() {
     setWalletType(null);
     localStorage.removeItem("connectedAccount");
     localStorage.removeItem("walletType");
+    
+    // Notify parent component
+    if (onWalletChange) {
+      onWalletChange({ connected: false, address: null, type: null });
+    }
+    
     toast.success("Wallet disconnected");
     console.log("🔌 Wallet disconnected");
   };

@@ -8,6 +8,7 @@ const medicineRouter = require('./Router/medicine-router');
 const otpRouter = require('./Router/otp-router');
 const cartRouter = require('./Router/cart-router');
 const orderRouter = require('./Router/order-router');
+const userRouter = require('./Router/user-router');
 const { verifyOrder } = require('./Router/order-controller');
 const connectDB = require('./Utils/db');
 
@@ -33,6 +34,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Request logging middleware (for debugging)
+app.use((req, res, next) => {
+    console.log(`📥 ${req.method} ${req.path}`);
+    next();
+});
+
 // ✅ Public Routes (NO authentication required) - MUST be before other routes
 app.get('/api/orders/verify/:orderId', verifyOrder);
 
@@ -51,7 +58,15 @@ app.use('/admin', adminRouter);
 app.use('/api', medicineRouter);
 app.use('/api', cartRouter);
 app.use('/api', orderRouter);
+app.use('/api/users', userRouter);
 app.use('/otp', otpRouter);
+
+console.log('✅ All routes mounted:');
+console.log('  - / (auth-router)');
+console.log('  - /admin (admin-router)');
+console.log('  - /api (medicine, cart, order routers)');
+console.log('  - /api/users (user-router) ← ADDRESS ROUTES HERE');
+console.log('  - /otp (otp-router)');
 
 // ✅ Default route
 app.get('/', (req, res) => {

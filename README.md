@@ -254,6 +254,80 @@ vercel --prod
 ### Environment Variables for Production
 Update all localhost URLs to production URLs in environment files.
 
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Phantom Wallet Connection Error
+**Problem:** "Unexpected error" when connecting Phantom wallet
+
+**Solutions:**
+1. **Unlock your Phantom wallet** - Make sure Phantom is unlocked before connecting
+2. **Clear previous connection** - If Phantom was previously connected, the app will automatically disconnect and reconnect
+3. **Refresh the page** - Sometimes Phantom needs a fresh page load
+4. **Check Phantom network** - Ensure Phantom is on the correct network (Devnet for development)
+5. **Browser console** - Check for specific error messages in browser developer tools (F12)
+
+**Technical Details:**
+The app now includes:
+- Automatic disconnect/reconnect handling
+- Real-time wallet connection updates (no page refresh needed)
+- Event listeners for account changes and disconnections
+- Better error messages for common issues
+
+#### Solana Transaction "Already Processed" Error
+**Problem:** "This transaction has already been processed" when making payment
+
+**Root Cause:** Solana detects duplicate transactions within ~2 minutes. Even with different blockhashes, if sender, receiver, and amount are identical, Solana may reject it as a duplicate.
+
+**Solutions:**
+1. **Wait for the first transaction to complete** - Don't click "Place Order" multiple times
+2. **Check your order history** - The first transaction may have succeeded
+3. **Unique memo added** - Each transaction now includes a unique memo to prevent duplicates
+4. **Fresh blockhash** - The app fetches a fresh blockhash for each transaction
+5. **Button is disabled during processing** - The payment button automatically disables while processing
+
+**Technical Details:**
+The app now includes:
+- **Memo Program Integration** - Each transaction includes a unique memo: `VitalEdge Order: VE_[timestamp]_[random]`
+- Fresh blockhash fetching for each transaction (prevents reuse)
+- Duplicate submission prevention (checks `processing` state)
+- Unique transaction ID generation for tracking
+- Better error handling for "already processed" errors
+- Warning toast if duplicate transaction detected
+- Transaction details logging for debugging
+
+**How the Memo Works:**
+```javascript
+// Each transaction gets a unique identifier
+Memo: "VitalEdge Order: VE_1730304123456_abc123xyz"
+
+// This makes every transaction unique, even with:
+// - Same sender wallet
+// - Same receiver wallet  
+// - Same amount (₹708 → 0.041652 SOL)
+```
+
+**What to do if you see this error:**
+1. Check your order history - the payment may have succeeded
+2. Wait 30 seconds before retrying
+3. Refresh the page if the button stays disabled
+4. Check Solana devnet explorer to verify transaction status
+5. Look for the memo in the transaction details to identify your order
+
+#### Wallet Connection Not Updating
+**Problem:** Payment button doesn't enable after connecting wallet
+
+**Solution:** This has been fixed! The app now updates in real-time when you connect/disconnect wallets. No page refresh needed.
+
+#### MetaMask vs Phantom Selection
+**Problem:** Wrong wallet opens when clicking "Connect Wallet"
+
+**Solution:** 
+- If both wallets are installed, a selection modal will appear
+- If only one wallet is installed, it connects directly
+- The app auto-detects which wallets you have installed
+
 ## 🤝 Contributing
 
 1. Fork the repository

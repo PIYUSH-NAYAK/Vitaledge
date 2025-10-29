@@ -64,6 +64,9 @@ const OrderDetails = () => {
 
         if (response.ok) {
           const data = await response.json();
+          console.log('📦 Order data received:', data.order);
+          console.log('🔗 Blockchain data:', data.order?.blockchain);
+          console.log('📊 On-chain data:', data.order?.blockchain?.onChainData);
           setOrder(data.order);
         } else {
           toast.error('Order not found');
@@ -291,6 +294,155 @@ const OrderDetails = () => {
                   )}
                 </div>
               </div>
+
+              {/* Blockchain Tracking Information */}
+              {order.blockchain?.batchId && (
+                <div className="bg-n-8 border border-n-6 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🔗</span>
+                    Blockchain Tracking
+                  </h2>
+                  
+                  <div className="space-y-4">
+                    {/* Batch Info - Always show if batchId exists */}
+                    <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+                      <h3 className="text-purple-300 font-medium mb-3">Batch Information</h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-n-4">Batch ID:</span>
+                          <a
+                            href={`https://explorer.solana.com/address/${order.blockchain.batchId}?cluster=devnet`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-purple-400 hover:text-purple-300 underline font-mono text-xs"
+                          >
+                            {order.blockchain.batchId.slice(0, 8)}...{order.blockchain.batchId.slice(-8)}
+                          </a>
+                        </div>
+                        {order.blockchain.contractAddress && (
+                          <div className="flex justify-between">
+                            <span className="text-n-4">Contract:</span>
+                            <span className="text-purple-300 font-mono text-xs">
+                              {order.blockchain.contractAddress.slice(0, 8)}...
+                            </span>
+                          </div>
+                        )}
+                        {order.blockchain.transactionHash && (
+                          <div className="flex justify-between">
+                            <span className="text-n-4">Transaction:</span>
+                            <a
+                              href={`https://explorer.solana.com/tx/${order.blockchain.transactionHash}?cluster=devnet`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-400 hover:text-purple-300 underline font-mono text-xs"
+                            >
+                              View on Explorer
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Show on-chain data if available, otherwise show loading/fetch message */}
+                    {order.blockchain.onChainData ? (
+                      <>
+                        {/* Ownership Tracking */}
+                        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                          <h3 className="text-blue-300 font-medium mb-3">Current Ownership</h3>
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <span className="text-n-4 block mb-1">Owner:</span>
+                              <a
+                                href={`https://explorer.solana.com/address/${order.blockchain.onChainData.currentOwner}?cluster=devnet`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:text-blue-300 underline font-mono text-xs break-all"
+                              >
+                                {order.blockchain.onChainData.currentOwner}
+                              </a>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-n-4">Status:</span>
+                              <span className={order.blockchain.onChainData.isActive ? 'text-green-400' : 'text-red-400'}>
+                                {order.blockchain.onChainData.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Ownership History */}
+                        {order.blockchain.onChainData.ownershipHistory && order.blockchain.onChainData.ownershipHistory.length > 0 && (
+                          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+                            <h3 className="text-green-300 font-medium mb-3">Ownership History</h3>
+                            <div className="space-y-3">
+                              {order.blockchain.onChainData.ownershipHistory.map((record, idx) => (
+                                <div key={idx} className="flex items-start gap-3 text-sm">
+                                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-semibold">
+                                    {idx + 1}
+                                  </div>
+                                  <div className="flex-grow min-w-0">
+                                    <div className="text-n-4 text-xs mb-1">
+                                      {new Date(record.timestamp).toLocaleString('en-IN')}
+                                    </div>
+                                    <a
+                                      href={`https://explorer.solana.com/address/${record.owner}?cluster=devnet`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-green-400 hover:text-green-300 underline font-mono text-xs break-all"
+                                    >
+                                      {record.owner}
+                                    </a>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-n-4 text-xs mt-3">
+                              This medicine batch has been transferred {order.blockchain.onChainData.ownershipHistory.length} time(s) on the blockchain, ensuring authenticity and traceability.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Manufacturer Info */}
+                        <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-4">
+                          <h3 className="text-orange-300 font-medium mb-3">Manufacturer</h3>
+                          <a
+                            href={`https://explorer.solana.com/address/${order.blockchain.onChainData.manufacturer}?cluster=devnet`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-orange-400 hover:text-orange-300 underline font-mono text-xs break-all"
+                          >
+                            {order.blockchain.onChainData.manufacturer}
+                          </a>
+                          <p className="text-n-4 text-xs mt-2">
+                            Created on {new Date(order.blockchain.onChainData.createdAt).toLocaleString('en-IN')}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-400"></div>
+                          <div>
+                            <h3 className="text-yellow-300 font-medium">Fetching On-Chain Data...</h3>
+                            <p className="text-yellow-200 text-xs mt-1">
+                              Reading ownership information from Solana blockchain
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-start gap-2 text-xs text-n-4 bg-n-7 rounded p-3">
+                      <svg className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <span>
+                        All ownership changes are permanently recorded on the Solana blockchain, ensuring complete transparency and preventing counterfeit medicines.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* QR Code for Verification */}
               {order.qrCode && (

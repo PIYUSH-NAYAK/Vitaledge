@@ -105,9 +105,9 @@ const Header = () => {
               {/* Mobile Auth Buttons */}
               {loggedIn ? (
                 <div className="flex flex-col items-center space-y-4 mt-8 lg:hidden">
-                  <Button className="w-full max-w-xs">
+                  <div className="w-full max-w-xs">
                     <WalletConnectButton />
-                  </Button>
+                  </div>
                   <Button 
                     className="w-full max-w-xs" 
                     onClick={() => navigate('/dashboard')}

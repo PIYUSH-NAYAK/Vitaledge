@@ -253,9 +253,28 @@ const getOrderDetails = async (req, res) => {
             });
         }
 
+        // Fetch on-chain blockchain data if available
+        let onChainData = null;
+        try {
+            if (order.blockchain && order.blockchain.batchId) {
+                const onchain = await blockchainService.verifyBatch(order.blockchain.batchId);
+                if (onchain && onchain.success) {
+                    onChainData = onchain.decoded || null;
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching on-chain data for order details:', e);
+        }
+
+        // Add on-chain data to blockchain object
+        const orderData = order.toObject();
+        if (onChainData && orderData.blockchain) {
+            orderData.blockchain.onChainData = onChainData;
+        }
+
         res.json({
             success: true,
-            order
+            order: orderData
         });
 
     } catch (error) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
@@ -12,7 +12,18 @@ const Checkout = () => {
   const [cart, setCart] = useState({ items: [], estimatedTotal: 0 });
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState(0); // Track current processing step
+  const [lastTransactionId, setLastTransactionId] = useState(null); // Track last transaction
+  const [lastTransactionTime, setLastTransactionTime] = useState(0); // Track last transaction timestamp
   const { refreshCart } = useCart();
+  
+  // Address management states
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+  const [verifyingPincode, setVerifyingPincode] = useState(false);
+  
   const [shippingAddress, setShippingAddress] = useState({
     fullName: '',
     phone: '',
@@ -50,6 +61,22 @@ const Checkout = () => {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Handle wallet connection changes - use useCallback to prevent unnecessary re-renders
+  const handleWalletChange = useCallback((walletInfo) => {
+    console.log('💰 Wallet status changed:', walletInfo);
+    setWalletConnected(walletInfo.connected);
+    setWalletAddress(walletInfo.address || '');
+    
+    // Clear wallet error if user connects wallet
+    if (walletInfo.connected) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.wallet;
+        return newErrors;
+      });
+    }
+  }, []);
 
   // Check wallet connection status
   useEffect(() => {
@@ -98,6 +125,134 @@ const Checkout = () => {
       fetchCart();
     }
   }, [user, navigate]);
+
+  // Fetch saved addresses on component mount
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/users/addresses`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSavedAddresses(data.addresses || []);
+          
+          // Auto-select default address if exists
+          const defaultAddr = data.addresses?.find(addr => addr.isDefault);
+          if (defaultAddr) {
+            setSelectedAddressId(defaultAddr._id);
+            setShippingAddress({
+              fullName: defaultAddr.fullName,
+              phone: defaultAddr.phone,
+              addressLine1: defaultAddr.addressLine1,
+              addressLine2: defaultAddr.addressLine2 || '',
+              city: defaultAddr.city,
+              state: defaultAddr.state,
+              pincode: defaultAddr.pincode,
+              landmark: defaultAddr.landmark || ''
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching saved addresses:', error);
+      }
+    };
+
+    if (user) {
+      fetchSavedAddresses();
+    }
+  }, [user]);
+
+  // Verify pincode and auto-fill city/state
+  const verifyPincode = async (pincode) => {
+    if (pincode.length !== 6 || !/^\d{6}$/.test(pincode)) {
+      return;
+    }
+
+    setVerifyingPincode(true);
+    try {
+      // Using India Post API
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
+
+      if (data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+        const postOffice = data[0].PostOffice[0];
+        setShippingAddress(prev => ({
+          ...prev,
+          city: postOffice.District,
+          state: postOffice.State,
+          pincode: pincode
+        }));
+        toast.success(`✅ ${postOffice.District}, ${postOffice.State} verified!`, {
+          position: 'top-right',
+          autoClose: 2000
+        });
+      } else {
+        toast.error('❌ Invalid pincode. Please check and try again.', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
+    } catch (error) {
+      console.error('Error verifying pincode:', error);
+      toast.warning('⚠️ Could not verify pincode. Please enter city and state manually.');
+    } finally {
+      setVerifyingPincode(false);
+    }
+  };
+
+  // Handle address selection
+  const handleSelectAddress = (address) => {
+    setSelectedAddressId(address._id);
+    setShippingAddress({
+      fullName: address.fullName,
+      phone: address.phone,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2 || '',
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      landmark: address.landmark || ''
+    });
+    setShowAddressModal(false);
+    toast.success('✅ Address selected successfully!');
+  };
+
+  // Save new address
+  const handleSaveNewAddress = async (addressData, setAsDefault = false) => {
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/users/addresses`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ...addressData, isDefault: setAsDefault })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSavedAddresses(data.addresses);
+        toast.success('✅ Address saved successfully!');
+        setIsAddingNewAddress(false);
+        
+        // Select the newly added address
+        const newAddress = data.addresses[data.addresses.length - 1];
+        handleSelectAddress(newAddress);
+      } else {
+        toast.error('❌ Failed to save address');
+      }
+    } catch (error) {
+      console.error('Error saving address:', error);
+      toast.error('❌ Error saving address');
+    }
+  };
 
   // Calculate totals
   const subtotal = cart.estimatedTotal || 0;
@@ -711,7 +866,7 @@ const Checkout = () => {
           toastId: 'preparing-sol-tx'
         });
 
-        const { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } = await import('@solana/web3.js');
+        const { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, TransactionInstruction } = await import('@solana/web3.js');
         
         // Connect to devnet for testing
         const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
@@ -721,8 +876,13 @@ const Checkout = () => {
         console.log('💰 Fetching real-time SOL price...');
         const solPrice = await getRealTimeSOLPrice();
         const solAmount = (total / solPrice).toFixed(6); // Use calculated total
-        const lamports = Math.floor(solAmount * LAMPORTS_PER_SOL);
-
+        let lamports = Math.floor(solAmount * LAMPORTS_PER_SOL);
+        
+        // Add 1-100 lamports variation to ensure absolute uniqueness (negligible amount)
+        // 100 lamports = 0.0000001 SOL ≈ ₹0.0017 (less than 1 paisa)
+        const randomVariation = Math.floor(Math.random() * 100) + 1;
+        lamports = lamports + randomVariation;
+        
         console.log(`💰 Payment Details:`);
         console.log(`Cart Subtotal: ₹${subtotal}`);
         console.log(`Delivery: ₹${deliveryCharges}`);
@@ -730,7 +890,9 @@ const Checkout = () => {
         console.log(`Final Total: ₹${total}`);
         console.log(`SOL Price: ₹${solPrice}/SOL`);
         console.log(`SOL Amount: ${solAmount} SOL`);
-        console.log(`Lamports: ${lamports}`);
+        console.log(`Base Lamports: ${lamports - randomVariation}`);
+        console.log(`Random Variation: +${randomVariation} lamports (for uniqueness)`);
+        console.log(`Final Lamports: ${lamports}`);
 
         if (lamports < 1000) {
           throw new Error('Transaction amount too small. Minimum 0.000001 SOL required.');
@@ -746,17 +908,43 @@ const Checkout = () => {
         console.log('From:', fromPubkey.toString());
         console.log('To:', toPubkey.toString());
 
-        const transaction = new Transaction().add(
-          SystemProgram.transfer({
-            fromPubkey: fromPubkey,
-            toPubkey: toPubkey,
-            lamports: lamports,
-          })
-        );
+        // Generate unique transaction ID for tracking
+        const txId = `VE_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log('🆔 Transaction ID:', txId);
 
-        const { blockhash } = await connection.getLatestBlockhash();
+        // Create memo program instruction for transaction uniqueness
+        const MEMO_PROGRAM_ID = new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
+        const memoText = `VitalEdge Order: ${txId}`;
+        const encoder = new window.TextEncoder();
+        const memoInstruction = new TransactionInstruction({
+          keys: [],
+          programId: MEMO_PROGRAM_ID,
+          data: encoder.encode(memoText)
+        });
+
+        // Create transaction with transfer + memo (makes each tx unique)
+        const transaction = new Transaction()
+          .add(memoInstruction) // Add memo first for better tracking
+          .add(
+            SystemProgram.transfer({
+              fromPubkey: fromPubkey,
+              toPubkey: toPubkey,
+              lamports: lamports,
+            })
+          );
+
+        // Get a FRESH blockhash to ensure transaction uniqueness
+        console.log('🔄 Fetching fresh blockhash...');
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('finalized');
         transaction.recentBlockhash = blockhash;
         transaction.feePayer = fromPubkey;
+        
+        console.log('✅ Fresh blockhash obtained:', blockhash.slice(0, 8) + '...');
+        console.log('✅ Valid until block height:', lastValidBlockHeight);
+        console.log('📝 Memo added to transaction for uniqueness');
+        
+        // Store transaction ID to prevent duplicate processing
+        setLastTransactionId(txId);
 
         console.log('🔄 Requesting user signature via Phantom...');
         
@@ -780,7 +968,26 @@ const Checkout = () => {
         });
 
         console.log('🔄 Sending Solana devnet transaction...');
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+        console.log('📝 Transaction details:', {
+          txId,
+          memo: memoText,
+          from: fromPubkey.toString(),
+          to: toPubkey.toString(),
+          lamports,
+          solAmount,
+          blockhash: blockhash.slice(0, 8) + '...'
+        });
+        
+        // Send transaction with skipPreflight to avoid duplicate detection during simulation
+        // The memo + random lamports variation ensures uniqueness
+        const signature = await connection.sendRawTransaction(
+          signedTransaction.serialize(),
+          {
+            skipPreflight: true, // Skip simulation to avoid false duplicate detection
+            maxRetries: 2,
+            preflightCommitment: 'confirmed'
+          }
+        );
         
         // Update toast to show waiting for confirmation
         toast.update('sending-tx', {
@@ -832,6 +1039,11 @@ const Checkout = () => {
         // Show specific error message based on error type
         if (error.message?.includes('User rejected') || error.code === 4001) {
           throw new Error('❌ Transaction was cancelled by user');
+        } else if (error.message?.includes('already been processed')) {
+          // Transaction might have already succeeded
+          console.warn('⚠️ Transaction may have already been processed');
+          toast.warning('⚠️ This transaction may have already been completed. Please check your order history before retrying.');
+          throw new Error('⚠️ Duplicate transaction detected. Please check your order history.');
         } else if (error.message?.includes('Phantom wallet not found')) {
           throw new Error('❌ Phantom wallet not found. Please install Phantom wallet.');
         } else if (error.message?.includes('insufficient funds')) {
@@ -840,6 +1052,8 @@ const Checkout = () => {
           throw new Error('⏰ Transaction confirmation timeout. Payment may still be processing.');
         } else if (error.message?.includes('not confirmed')) {
           throw new Error('❌ Transaction failed to confirm on Solana blockchain');
+        } else if (error.message?.includes('blockhash not found')) {
+          throw new Error('❌ Transaction expired. Please try again with a fresh transaction.');
         } else {
           throw new Error(`❌ Solana payment failed: ${error.message}`);
         }
@@ -899,6 +1113,32 @@ const Checkout = () => {
     console.log('Wallet connected:', walletConnected);
     console.log('Cart items:', cart.items?.length);
     
+    // Prevent duplicate submissions
+    if (processing) {
+      console.warn('⚠️ Already processing an order, ignoring duplicate click');
+      toast.warning('⏳ Order is already being processed. Please wait...', {
+        position: 'top-right',
+        autoClose: 2000
+      });
+      return;
+    }
+    
+    // Cooldown check - prevent rapid submissions (3 second minimum between attempts)
+    const now = Date.now();
+    const timeSinceLastTx = now - lastTransactionTime;
+    if (timeSinceLastTx < 3000 && lastTransactionTime > 0) {
+      const waitTime = Math.ceil((3000 - timeSinceLastTx) / 1000);
+      console.warn(`⏳ Please wait ${waitTime} seconds before trying again`);
+      toast.warning(`⏳ Please wait ${waitTime} second${waitTime > 1 ? 's' : ''} before placing another order`, {
+        position: 'top-right',
+        autoClose: 2000
+      });
+      return;
+    }
+    
+    // Update last transaction time
+    setLastTransactionTime(now);
+    
     // Basic cart check
     if (!cart.items || cart.items.length === 0) {
       toast.error('❌ Your cart is empty!', {
@@ -930,16 +1170,19 @@ const Checkout = () => {
 
     console.log('✅ Starting payment process...');
     setProcessing(true);
+    setProcessingStep(0); // Reset steps
     
     try {
       // Step 1: Process blockchain payment first
       console.log('💰 Processing payment...');
+      setProcessingStep(1); // Connecting to blockchain
       toast.info('🚀 Initiating blockchain payment...', { position: 'top-right', autoClose: false, toastId: 'payment-process' });
       
       const paymentResult = await processBlockchainPayment();
       console.log('✅ Payment successful:', paymentResult);
 
       // Step 2: Create order with payment confirmation
+      setProcessingStep(2); // Verifying transaction
       toast.info('📋 Creating your order...', { 
         position: 'top-right',
         autoClose: false,
@@ -947,6 +1190,8 @@ const Checkout = () => {
       });
       
       const token = await user.getIdToken();
+      
+      setProcessingStep(3); // Creating order record
       
       const orderData = {
         shippingAddress,
@@ -974,6 +1219,10 @@ const Checkout = () => {
 
       if (!orderResponse.ok) {
         console.warn('Order creation failed, but payment was successful');
+        
+        // Show completion step even though order creation had issues
+        setProcessingStep(4);
+        
         toast.success('⚠️ Payment successful! Order details will be processed separately.', {
           position: 'top-right',
           autoClose: 4000
@@ -983,14 +1232,17 @@ const Checkout = () => {
         console.log('🧹 Clearing cart - payment successful despite order creation issue...');
         await clearCartCompletely();
         
+        // Keep overlay visible for smooth transition
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         // Show thank you message and redirect to orders page
         setTimeout(() => {
           toast.success('🙏 Thank you for your order! Payment confirmed - check orders page.', {
             position: 'top-right',
-            autoClose: 3000
+            autoClose: 2000
           });
           navigate('/orders'); // Redirect to orders page
-        }, 2000);
+        }, 2500);
         
         return;
       }
@@ -998,13 +1250,19 @@ const Checkout = () => {
       const orderResult = await orderResponse.json();
       const orderId = orderResult.order.orderId;
       
-      // Step 4: Clear cart completely after successful order creation
+      // Step 4: Show completion step
+      setProcessingStep(4); // Payment completed
+      
+      // Step 5: Clear cart completely after successful order creation
       console.log('🧹 Clearing cart after successful order...');
       await clearCartCompletely();
       
-      // Step 5: Show success message
+      // Step 6: Show success message and keep overlay for smooth transition
       toast.dismiss('payment-process'); // Dismiss processing toast
       toast.dismiss('order-creation'); // Dismiss order creation toast
+      
+      // Wait a bit to show the "Payment Completed" step
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Single comprehensive success message instead of multiple overlapping toasts
       toast.success(
@@ -1014,14 +1272,14 @@ const Checkout = () => {
         </div>, 
         {
           position: 'top-right',
-          autoClose: 3000
+          autoClose: 2000
         }
       );
       
-      // Navigate to specific order page after showing success message
+      // Navigate to specific order page after showing success and keeping overlay visible
       setTimeout(() => {
         navigate(`/orders/${orderId}`);
-      }, 2000);
+      }, 2500);
 
     } catch (error) {
       console.error('Error in payment/order process:', error);
@@ -1039,6 +1297,7 @@ const Checkout = () => {
       });
     } finally {
       setProcessing(false);
+      setProcessingStep(0); // Reset steps
     }
   };
 
@@ -1054,6 +1313,135 @@ const Checkout = () => {
 
   return (
     <Section className="pt-[6rem] -mt-[5.25rem]" crosses>
+      {/* Payment Processing Overlay */}
+      {processing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md">
+          <div className="bg-gradient-to-br from-n-8 to-n-7 border-2 border-purple-500/50 rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-fadeIn">
+            {/* Animated Loading Circle */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="w-20 h-20 border-4 border-purple-200/20 rounded-full"></div>
+                <div className="w-20 h-20 border-4 border-purple-500 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="w-10 h-10 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Processing Text */}
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-white mb-3 animate-pulse">
+                Processing Payment
+              </h3>
+              <div className="space-y-2 text-n-3">
+                <p className="flex items-center justify-center space-x-2">
+                  <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                  <span>Securing your transaction...</span>
+                </p>
+                <p className="text-sm text-n-4">
+                  Please don&apos;t close this window or refresh the page
+                </p>
+              </div>
+            </div>
+
+            {/* Blockchain Steps */}
+            <div className="mt-6 space-y-3 bg-n-9/50 rounded-lg p-4">
+              <div className={`flex items-center space-x-3 text-sm transition-all duration-300 ${processingStep >= 1 ? 'opacity-100' : 'opacity-50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  processingStep >= 1 ? 'bg-green-500' : 'bg-purple-500/50 border-2 border-purple-500 animate-pulse'
+                }`}>
+                  {processingStep >= 1 ? (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  )}
+                </div>
+                <span className={processingStep >= 1 ? 'text-green-400 font-medium' : 'text-n-3'}>
+                  Connecting to blockchain network
+                </span>
+              </div>
+              
+              <div className={`flex items-center space-x-3 text-sm transition-all duration-300 ${processingStep >= 2 ? 'opacity-100' : 'opacity-50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  processingStep >= 2 ? 'bg-green-500' : processingStep === 1 ? 'bg-purple-500/50 border-2 border-purple-500 animate-pulse' : 'bg-n-6 border-2 border-n-5'
+                }`}>
+                  {processingStep >= 2 ? (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : processingStep === 1 ? (
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  ) : null}
+                </div>
+                <span className={processingStep >= 2 ? 'text-green-400 font-medium' : processingStep === 1 ? 'text-n-3' : 'text-n-5'}>
+                  Verifying transaction details
+                </span>
+              </div>
+              
+              <div className={`flex items-center space-x-3 text-sm transition-all duration-300 ${processingStep >= 3 ? 'opacity-100' : 'opacity-50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  processingStep >= 3 ? 'bg-green-500' : processingStep === 2 ? 'bg-purple-500/50 border-2 border-purple-500 animate-pulse' : 'bg-n-6 border-2 border-n-5'
+                }`}>
+                  {processingStep >= 3 ? (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : processingStep === 2 ? (
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  ) : null}
+                </div>
+                <span className={processingStep >= 3 ? 'text-green-400 font-medium' : processingStep === 2 ? 'text-n-3' : 'text-n-5'}>
+                  Creating order record
+                </span>
+              </div>
+              
+              <div className={`flex items-center space-x-3 text-sm transition-all duration-300 ${processingStep >= 4 ? 'opacity-100' : 'opacity-50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  processingStep >= 4 ? 'bg-green-500 animate-bounce' : processingStep === 3 ? 'bg-purple-500/50 border-2 border-purple-500 animate-pulse' : 'bg-n-6 border-2 border-n-5'
+                }`}>
+                  {processingStep >= 4 ? (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : processingStep === 3 ? (
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  ) : null}
+                </div>
+                <span className={processingStep >= 4 ? 'text-green-400 font-bold' : processingStep === 3 ? 'text-n-3' : 'text-n-5'}>
+                  {processingStep >= 4 ? '✨ Payment Completed!' : 'Finalizing payment'}
+                </span>
+              </div>
+            </div>
+
+            {/* Success Message when step 4 is reached */}
+            {processingStep >= 4 && (
+              <div className="mt-6 p-4 bg-green-900/30 border border-green-500/50 rounded-lg animate-fadeIn">
+                <p className="text-green-400 text-center font-medium flex items-center justify-center space-x-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Redirecting to your order...</span>
+                </p>
+              </div>
+            )}
+
+            {/* Additional Info */}
+            <div className="mt-6 text-center">
+              <p className="text-xs text-n-5 flex items-center justify-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                <span>Secured by blockchain technology</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           
@@ -1090,132 +1478,63 @@ const Checkout = () => {
               
               {/* Shipping Address */}
               <div className="bg-n-8 border border-n-6 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-white mb-6">Shipping Address</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-n-4 text-sm mb-2">Full Name *</label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={shippingAddress.fullName}
-                      onChange={(e) => handleAddressChange('fullName', e.target.value)}
-                      onBlur={(e) => handleFieldBlur('fullName', e.target.value)}
-                      className={`w-full px-3 py-2 bg-n-7 border rounded-lg text-white focus:border-blue-500 ${
-                        showErrors && errors.fullName ? 'border-red-500' : 'border-n-6'
-                      }`}
-                      placeholder="Enter full name"
-                    />
-                    {showErrors && errors.fullName && (
-                      <p className="text-red-400 text-sm mt-1">❌ {errors.fullName}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-n-4 text-sm mb-2">Phone Number *</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={shippingAddress.phone}
-                      onChange={(e) => handleAddressChange('phone', e.target.value)}
-                      onBlur={(e) => handleFieldBlur('phone', e.target.value)}
-                      className={`w-full px-3 py-2 bg-n-7 border rounded-lg text-white focus:border-blue-500 ${
-                        showErrors && errors.phone ? 'border-red-500' : 'border-n-6'
-                      }`}
-                      placeholder="Enter phone number"
-                    />
-                    {showErrors && errors.phone && (
-                      <p className="text-red-400 text-sm mt-1">❌ {errors.phone}</p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-n-4 text-sm mb-2">Address Line 1 *</label>
-                    <input
-                      type="text"
-                      name="addressLine1"
-                      value={shippingAddress.addressLine1}
-                      onChange={(e) => handleAddressChange('addressLine1', e.target.value)}
-                      onBlur={(e) => handleFieldBlur('addressLine1', e.target.value)}
-                      className={`w-full px-3 py-2 bg-n-7 border rounded-lg text-white focus:border-blue-500 ${
-                        showErrors && errors.addressLine1 ? 'border-red-500' : 'border-n-6'
-                      }`}
-                      placeholder="House/Flat No., Street"
-                    />
-                    {showErrors && errors.addressLine1 && (
-                      <p className="text-red-400 text-sm mt-1">❌ {errors.addressLine1}</p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-n-4 text-sm mb-2">Address Line 2</label>
-                    <input
-                      type="text"
-                      name="addressLine2"
-                      value={shippingAddress.addressLine2}
-                      onChange={(e) => handleAddressChange('addressLine2', e.target.value)}
-                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-blue-500"
-                      placeholder="Area, Colony, Sector"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-n-4 text-sm mb-2">City *</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={shippingAddress.city}
-                      onChange={(e) => handleAddressChange('city', e.target.value)}
-                      onBlur={(e) => handleFieldBlur('city', e.target.value)}
-                      className={`w-full px-3 py-2 bg-n-7 border rounded-lg text-white focus:border-blue-500 ${
-                        showErrors && errors.city ? 'border-red-500' : 'border-n-6'
-                      }`}
-                      placeholder="Enter city"
-                    />
-                    {showErrors && errors.city && (
-                      <p className="text-red-400 text-sm mt-1">❌ {errors.city}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-n-4 text-sm mb-2">State *</label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={shippingAddress.state}
-                      onChange={(e) => handleAddressChange('state', e.target.value)}
-                      onBlur={(e) => handleFieldBlur('state', e.target.value)}
-                      className={`w-full px-3 py-2 bg-n-7 border rounded-lg text-white focus:border-blue-500 ${
-                        showErrors && errors.state ? 'border-red-500' : 'border-n-6'
-                      }`}
-                      placeholder="Enter state"
-                    />
-                    {showErrors && errors.state && (
-                      <p className="text-red-400 text-sm mt-1">❌ {errors.state}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-n-4 text-sm mb-2">Pincode *</label>
-                    <input
-                      type="text"
-                      name="pincode"
-                      value={shippingAddress.pincode}
-                      onChange={(e) => handleAddressChange('pincode', e.target.value)}
-                      onBlur={(e) => handleFieldBlur('pincode', e.target.value)}
-                      className={`w-full px-3 py-2 bg-n-7 border rounded-lg text-white focus:border-blue-500 ${
-                        showErrors && errors.pincode ? 'border-red-500' : 'border-n-6'
-                      }`}
-                      placeholder="Enter pincode"
-                    />
-                    {showErrors && errors.pincode && (
-                      <p className="text-red-400 text-sm mt-1">❌ {errors.pincode}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-n-4 text-sm mb-2">Landmark</label>
-                    <input
-                      type="text"
-                      value={shippingAddress.landmark}
-                      onChange={(e) => handleAddressChange('landmark', e.target.value)}
-                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-blue-500"
-                      placeholder="Nearby landmark"
-                    />
-                  </div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-white">Shipping Address</h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddressModal(true)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition duration-200"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{savedAddresses.length > 0 ? 'Change Address' : 'Add Address'}</span>
+                  </button>
                 </div>
+
+                {/* Selected Address Preview */}
+                {selectedAddressId && (
+                  <div className="mb-4 p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-green-400 font-medium">Delivering to this address</span>
+                        </div>
+                        <p className="text-white font-medium">{shippingAddress.fullName}</p>
+                        <p className="text-n-3 text-sm">{shippingAddress.addressLine1}</p>
+                        {shippingAddress.addressLine2 && (
+                          <p className="text-n-3 text-sm">{shippingAddress.addressLine2}</p>
+                        )}
+                        <p className="text-n-3 text-sm">
+                          {shippingAddress.city}, {shippingAddress.state} - {shippingAddress.pincode}
+                        </p>
+                        <p className="text-n-3 text-sm">Phone: {shippingAddress.phone}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* No Address Selected - Prompt User */}
+                {!selectedAddressId && (
+                  <div className="p-8 text-center bg-n-7/50 rounded-lg border-2 border-dashed border-n-5">
+                    <svg className="w-16 h-16 text-n-5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <p className="text-n-3 mb-4">No delivery address selected</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddressModal(true)}
+                      className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition duration-200 font-medium"
+                    >
+                      {savedAddresses.length > 0 ? 'Select an Address' : 'Add Your First Address'}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Payment Method */}
@@ -1317,7 +1636,7 @@ const Checkout = () => {
                 {/* Wallet Connection */}
                 <div className="border-t border-n-6 pt-4">
                   <label className="block text-n-4 text-sm mb-3">Connect Wallet</label>
-                  <WalletConnectButton />
+                  <WalletConnectButton onWalletChange={handleWalletChange} />
                   {walletConnected && (
                     <div className="mt-3 text-green-500 text-sm flex items-center">
                       <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
@@ -1496,6 +1815,295 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+      {/* Address Selection Modal */}
+      {showAddressModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-n-8 border border-n-6 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-n-8 border-b border-n-6 p-6 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-white">Select Delivery Address</h3>
+              <button
+                onClick={() => setShowAddressModal(false)}
+                className="text-n-4 hover:text-white transition"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Add New Address Button */}
+              <button
+                onClick={() => {
+                  setIsAddingNewAddress(true);
+                  setShowAddressModal(false);
+                }}
+                className="w-full flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-purple-500/50 rounded-lg hover:border-purple-500 hover:bg-purple-500/10 transition duration-200 group"
+              >
+                <svg className="w-5 h-5 text-purple-400 group-hover:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-purple-400 group-hover:text-purple-300 font-medium">Add New Address</span>
+              </button>
+
+              {/* Saved Addresses List */}
+              {savedAddresses.length > 0 ? (
+                <div className="space-y-3">
+                  {savedAddresses.map((address) => (
+                    <button
+                      key={address._id}
+                      onClick={() => handleSelectAddress(address)}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition duration-200 ${
+                        selectedAddressId === address._id
+                          ? 'border-green-500 bg-green-900/20'
+                          : 'border-n-6 hover:border-purple-500/50 hover:bg-n-7'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            {address.isDefault && (
+                              <span className="px-2 py-0.5 bg-purple-500 text-white text-xs rounded">Default</span>
+                            )}
+                            {selectedAddressId === address._id && (
+                              <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded">Selected</span>
+                            )}
+                          </div>
+                          <p className="text-white font-medium">{address.fullName}</p>
+                          <p className="text-n-3 text-sm">{address.addressLine1}</p>
+                          {address.addressLine2 && (
+                            <p className="text-n-3 text-sm">{address.addressLine2}</p>
+                          )}
+                          <p className="text-n-3 text-sm">
+                            {address.city}, {address.state} - {address.pincode}
+                          </p>
+                          <p className="text-n-3 text-sm">Phone: {address.phone}</p>
+                        </div>
+                        {selectedAddressId === address._id && (
+                          <svg className="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <svg className="w-16 h-16 text-n-5 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <p className="text-n-4 mb-2">No saved addresses yet</p>
+                  <p className="text-n-5 text-sm">Add your first address to get started</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Address Form Modal */}
+      {isAddingNewAddress && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-n-8 border border-n-6 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-n-8 border-b border-n-6 p-6 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-white">Add New Address</h3>
+              <button
+                onClick={() => {
+                  setIsAddingNewAddress(false);
+                  setShowAddressModal(true);
+                }}
+                className="text-n-4 hover:text-white transition"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="p-6">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const addressData = {
+                  fullName: formData.get('fullName'),
+                  phone: formData.get('phone'),
+                  addressLine1: formData.get('addressLine1'),
+                  addressLine2: formData.get('addressLine2') || '',
+                  city: formData.get('city'),
+                  state: formData.get('state'),
+                  pincode: formData.get('pincode'),
+                  landmark: formData.get('landmark') || ''
+                };
+                const setAsDefault = formData.get('setAsDefault') === 'on';
+                handleSaveNewAddress(addressData, setAsDefault);
+              }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-n-4 text-sm mb-2">Full Name *</label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      required
+                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-purple-500 outline-none"
+                      placeholder="Enter full name"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-n-4 text-sm mb-2">Phone Number *</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      required
+                      pattern="[0-9]{10}"
+                      maxLength="10"
+                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-purple-500 outline-none"
+                      placeholder="10-digit phone number"
+                    />
+                  </div>
+
+                  {/* Address Line 1 */}
+                  <div className="md:col-span-2">
+                    <label className="block text-n-4 text-sm mb-2">Address Line 1 *</label>
+                    <input
+                      type="text"
+                      name="addressLine1"
+                      required
+                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-purple-500 outline-none"
+                      placeholder="House/Flat No., Street"
+                    />
+                  </div>
+
+                  {/* Address Line 2 */}
+                  <div className="md:col-span-2">
+                    <label className="block text-n-4 text-sm mb-2">Address Line 2</label>
+                    <input
+                      type="text"
+                      name="addressLine2"
+                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-purple-500 outline-none"
+                      placeholder="Area, Colony, Sector (Optional)"
+                    />
+                  </div>
+
+                  {/* Pincode with Auto-Verify */}
+                  <div>
+                    <label className="flex items-center space-x-2 text-n-4 text-sm mb-2">
+                      <span>Pincode *</span>
+                      {verifyingPincode && (
+                        <span className="text-xs text-purple-400 flex items-center">
+                          <svg className="animate-spin h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Verifying...
+                        </span>
+                      )}
+                    </label>
+                    <input
+                      type="text"
+                      name="pincode"
+                      required
+                      maxLength="6"
+                      pattern="[0-9]{6}"
+                      value={shippingAddress.pincode}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        handleAddressChange('pincode', value);
+                        if (value.length === 6) {
+                          verifyPincode(value);
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-purple-500 outline-none"
+                      placeholder="6-digit pincode"
+                    />
+                    <p className="text-purple-400 text-xs mt-1">💡 City & State will be auto-filled</p>
+                  </div>
+
+                  {/* Landmark */}
+                  <div>
+                    <label className="block text-n-4 text-sm mb-2">Landmark</label>
+                    <input
+                      type="text"
+                      name="landmark"
+                      className="w-full px-3 py-2 bg-n-7 border border-n-6 rounded-lg text-white focus:border-purple-500 outline-none"
+                      placeholder="Nearby landmark"
+                    />
+                  </div>
+
+                  {/* City (Auto-filled) */}
+                  <div>
+                    <label className="block text-n-4 text-sm mb-2">City *</label>
+                    <input
+                      type="text"
+                      name="city"
+                      required
+                      value={shippingAddress.city}
+                      readOnly
+                      className="w-full px-3 py-2 bg-n-9 border border-n-6 rounded-lg text-white cursor-not-allowed"
+                      placeholder="Auto-filled from pincode"
+                    />
+                  </div>
+
+                  {/* State (Auto-filled) */}
+                  <div>
+                    <label className="block text-n-4 text-sm mb-2">State *</label>
+                    <input
+                      type="text"
+                      name="state"
+                      required
+                      value={shippingAddress.state}
+                      readOnly
+                      className="w-full px-3 py-2 bg-n-9 border border-n-6 rounded-lg text-white cursor-not-allowed"
+                      placeholder="Auto-filled from pincode"
+                    />
+                  </div>
+
+                  {/* Set as Default */}
+                  <div className="md:col-span-2">
+                    <label className="flex items-center space-x-2 text-n-4 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="setAsDefault"
+                        className="w-4 h-4 rounded bg-n-7 border-n-6 text-purple-500 focus:ring-purple-500"
+                      />
+                      <span>Set as default address</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end space-x-3 mt-6 pt-6 border-t border-n-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingNewAddress(false);
+                      setShowAddressModal(true);
+                    }}
+                    className="px-6 py-2 bg-n-7 hover:bg-n-6 text-white rounded-lg transition duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition duration-200 font-medium"
+                  >
+                    Save Address
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </Section>
   );
 };

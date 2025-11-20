@@ -61,7 +61,7 @@ cd Vitaledge
 
 ### 2. Frontend Setup
 ```bash
-cd "front end"
+cd frontend
 npm install
 
 # Create environment file
@@ -116,7 +116,7 @@ use vitaledge
 2. Create a new project or select existing
 3. Enable Authentication → Sign-in method → Email/Password
 4. Get your config from Project Settings → General → Your apps → Web app
-5. Copy all the config values to `front end/.env`:
+5. Copy all the config values to `frontend/.env`:
    ```
    VITE_FIREBASE_API_KEY=AIzaSy... (from config.apiKey)
    VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com (from config.authDomain)
@@ -155,14 +155,14 @@ cd backend
 npm start
 
 # Terminal 2 - Frontend  
-cd "front end"
+cd frontend
 npm run dev
 ```
 
 ### Production Build
 ```bash
 # Frontend
-cd "front end"
+cd frontend
 npm run build
 
 # Backend (PM2 recommended)
@@ -181,7 +181,7 @@ pm2 start server.js --name "vitaledge-backend"
 
 ### Frontend (.env)
 ```env
-# Copy from front end/.env.example and update with your Firebase project details
+# Copy from frontend/.env.example and update with your Firebase project details
 VITE_FIREBASE_API_KEY=AIzaSyExample123456789abcdefghijklmnop
 VITE_FIREBASE_AUTH_DOMAIN=your-project-12345.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-12345
@@ -241,7 +241,7 @@ FRONTEND_URL=http://localhost:5173
 <!-- ### Frontend (Vercel)
 ```bash
 npm install -g vercel
-cd "front end"
+cd frontend
 vercel --prod
 ```
 

@@ -1,19 +1,27 @@
 const web3 = require('@solana/web3.js');
 const fs = require('fs');
 
-// ✅ Load keypair from generated wallet with error handling
-const walletPath = process.env.SOLANA_WALLET_PATH || '/home/iso/solana-wallet/keypair.json';
-
+// ✅ Load keypair with support for both file path (local) and env variable (production)
 let wallet;
 try {
-  if (fs.existsSync(walletPath)) {
-    const secretKey = JSON.parse(fs.readFileSync(walletPath));
+  // Production: Check for SOLANA_PRIVATE_KEY environment variable first
+  if (process.env.SOLANA_PRIVATE_KEY) {
+    const secretKey = JSON.parse(process.env.SOLANA_PRIVATE_KEY);
     wallet = web3.Keypair.fromSecretKey(new Uint8Array(secretKey));
-    console.log('✅ Solana wallet loaded successfully');
+    console.log('✅ Solana wallet loaded from environment variable');
+    console.log('📍 Wallet Address:', wallet.publicKey.toString());
+  }
+  // Local Development: Check for wallet file
+  else if (process.env.SOLANA_WALLET_PATH && fs.existsSync(process.env.SOLANA_WALLET_PATH)) {
+    const secretKey = JSON.parse(fs.readFileSync(process.env.SOLANA_WALLET_PATH));
+    wallet = web3.Keypair.fromSecretKey(new Uint8Array(secretKey));
+    console.log('✅ Solana wallet loaded from file');
+    console.log('📍 Wallet Address:', wallet.publicKey.toString());
   } else {
     console.log('⚠️  Solana wallet not found, generating temporary wallet for development');
     wallet = web3.Keypair.generate();
     console.log('🔑 Temporary wallet address:', wallet.publicKey.toString());
+    console.log('⚠️  WARNING: Using temporary wallet - transactions will not persist!');
     
     // Auto-fund temporary wallet on test validator
     setTimeout(async () => {
@@ -35,6 +43,7 @@ try {
 } catch (error) {
   console.error('❌ Error loading Solana wallet, using temporary wallet:', error.message);
   wallet = web3.Keypair.generate();
+  console.log('🔑 Temporary wallet address:', wallet.publicKey.toString());
 }
 
 // ✅ Connect to Solana Devnet - Where your contract is deployed

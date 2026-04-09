@@ -67,12 +67,7 @@ npm install
 # Create environment file
 cp .env.example .env
 
-# Configure your Firebase credentials in .env (copy from .env.example)
-# Update with your actual Firebase project details:
-# VITE_FIREBASE_API_KEY=AIzaSyExample123456789abcdefghijklmnop
-# VITE_FIREBASE_AUTH_DOMAIN=your-project-12345.firebaseapp.com
-# VITE_FIREBASE_PROJECT_ID=your-project-12345
-# etc...
+
 
 # Start development server
 npm run dev
@@ -86,14 +81,7 @@ npm install
 # Create environment file
 cp .env.example .env
 
-# Configure your credentials in .env (copy from .env.example)
-# Update with your actual credentials:
-# PORT=7777
-# MONGODB_URI=mongodb://localhost:27017/vitaledge (or your MongoDB Atlas URI)
-# FIREBASE_PROJECT_ID=your-project-12345
-# FIREBASE_CLIENT_EMAIL=firebase-adminsdk-12abc@your-project-12345.iam.gserviceaccount.com
-# FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-# SOLANA_WALLET_PATH=/home/user/solana-wallet/keypair.json
+
 
 # Start backend server
 npm start

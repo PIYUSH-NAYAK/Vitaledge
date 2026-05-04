@@ -6,21 +6,29 @@ const QRCode = require('qrcode');
 async function generateMissingQRCodes(limit = 100) {
   await connectDB();
 
-  console.log('Searching for orders missing qrCode...');
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  console.log(`Using FRONTEND_URL: ${frontendUrl}`);
+  console.log('Searching for orders with missing or localhost QR codes...');
 
-  const filter = { $or: [ { qrCode: null }, { qrCode: { $exists: false } } ] };
+  const filter = {
+    $or: [
+      { qrCode: null },
+      { qrCode: { $exists: false } },
+      { qrCode: /localhost/ },
+    ]
+  };
   const orders = await Order.find(filter).limit(limit);
 
   if (!orders || orders.length === 0) {
-    console.log('No orders found that are missing qrCode. Exiting.');
+    console.log('No orders need QR regeneration. Exiting.');
     process.exit(0);
   }
 
-  console.log(`Found ${orders.length} orders without qrCode. Processing...`);
+  console.log(`Found ${orders.length} orders to fix. Processing...`);
 
   for (const order of orders) {
     try {
-      const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify/${order.orderId}`;
+      const verificationUrl = `${frontendUrl}/verify/${order.orderId}`;
       const qrCodeDataURL = await QRCode.toDataURL(verificationUrl, {
         errorCorrectionLevel: 'H',
         type: 'image/png',

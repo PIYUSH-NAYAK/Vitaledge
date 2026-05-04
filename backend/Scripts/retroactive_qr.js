@@ -10,21 +10,14 @@ async function generateMissingQRCodes(limit = 100) {
   console.log(`Using FRONTEND_URL: ${frontendUrl}`);
   console.log('Searching for orders with missing or localhost QR codes...');
 
-  const filter = {
-    $or: [
-      { qrCode: null },
-      { qrCode: { $exists: false } },
-      { qrCode: /localhost/ },
-    ]
-  };
-  const orders = await Order.find(filter).limit(limit);
+  const orders = await Order.find({}).limit(limit);
 
   if (!orders || orders.length === 0) {
-    console.log('No orders need QR regeneration. Exiting.');
+    console.log('No orders found. Exiting.');
     process.exit(0);
   }
 
-  console.log(`Found ${orders.length} orders to fix. Processing...`);
+  console.log(`Regenerating QR codes for ${orders.length} orders...`);
 
   for (const order of orders) {
     try {

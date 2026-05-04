@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
+import toast from "../utils/notify";
 import { FaPlus, FaMinus, FaEdit, FaSearch, FaSync } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { toast } from 'react-toastify';
+import toast from '../../utils/notify';
 import Button from '../mycomp2/Button';
 
 const ImageUpload = ({ onImagesSelected, maxImages = 5, accept = "image/*" }) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import Section from './mycomp2/Section';
 import Button from './mycomp2/Button';
 import { FaSearch, FaFilter, FaSort, FaChartLine, FaBoxes, FaRupeeSign, FaUsers, FaClock } from 'react-icons/fa';

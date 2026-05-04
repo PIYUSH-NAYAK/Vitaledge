@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import InputControls from "../common/Inputcontrols";
 import { useAuth } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast from "../../utils/notify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/register`;

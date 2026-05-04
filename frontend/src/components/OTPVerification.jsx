@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ToastContainer, toast } from "react-toastify";
+import { useState, useEffect } from 'react';
+import toast from "../utils/notify";
 import { FaEnvelope, FaArrowLeft } from "react-icons/fa";
 
 const OTPVerification = ({ 
@@ -14,7 +14,7 @@ const OTPVerification = ({
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
 
   // Timer countdown
-  useState(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -130,18 +130,6 @@ const OTPVerification = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      
       <div className="relative z-1 p-1 rounded-2xl bg-conic-gradient">
         <div className="max-w-md w-full space-y-8 bg-gray-900 p-8 rounded-xl shadow-md">
           

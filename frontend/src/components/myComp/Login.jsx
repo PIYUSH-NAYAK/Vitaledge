@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // For navigation after successful login
 import InputControls from "../common/Inputcontrols";
 import { useAuth } from "../../store/auth";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import styles for Toastify
+import toast from "../../utils/notify";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 import Section from "../mycomp2/Section";
 

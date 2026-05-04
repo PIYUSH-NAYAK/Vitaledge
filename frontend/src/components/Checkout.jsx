@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import { useNavigate } from 'react-router-dom';
 import Section from './mycomp2/Section';
 import Button from './mycomp2/Button';
 import WalletConnectButton from './common/walletconnect';
-import 'react-toastify/dist/ReactToastify.css';
 
 const Checkout = () => {
   const [cart, setCart] = useState({ items: [], estimatedTotal: 0 });

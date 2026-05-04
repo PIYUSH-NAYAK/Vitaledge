@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import toast from "../../utils/notify";
 
 export default function WalletConnectButton({ onWalletChange }) {
   const [account, setAccount] = useState(null);

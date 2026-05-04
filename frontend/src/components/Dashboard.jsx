@@ -1,7 +1,7 @@
 import { logoutUser } from '../firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import Section from './mycomp2/Section';
 
 const Dashboard = () => {

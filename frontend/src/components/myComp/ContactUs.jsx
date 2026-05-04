@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast from "../../utils/notify";
 import { FaTwitter, FaFacebook, FaGoogle, FaInstagram, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
 const URI = `${import.meta.env.VITE_APP_BACKEND_URL}/contact`;
 import { useAuth } from "../../context/AuthContext"; // ✅ Updated to Firebase auth

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import toast from "../utils/notify";
 import { FaUsers, FaUserPlus, FaUserMinus, FaBoxes, FaPills, FaChartBar } from "react-icons/fa";
 import Button from "./mycomp2/Button";
 

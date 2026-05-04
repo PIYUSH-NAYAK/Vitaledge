@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Section from './mycomp2/Section';
 import Button from './mycomp2/Button';
-import { ToastContainer, toast } from 'react-toastify';
+import toast from '../utils/notify';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import 'react-toastify/dist/ReactToastify.css';
 
 const MedicineDetails = () => {
   const { slug } = useParams();
@@ -138,18 +137,6 @@ const MedicineDetails = () => {
       crossesOffset="lg:translate-y-[5.25rem]"
       customPaddings
     >
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="mb-8">

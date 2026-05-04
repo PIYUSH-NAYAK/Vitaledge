@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import blockchainService from '../services/blockchainService';
 import { useWallet } from '@solana/wallet-adapter-react';
 

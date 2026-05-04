@@ -6,7 +6,8 @@ const admin = require('firebase-admin');
 // Send OTP for email verification
 const sendOTP = async (req, res) => {
     try {
-        const { email, name, password } = req.body;
+        const { name, password } = req.body;
+        const email = req.body.email?.toLowerCase();
 
         if (!email || !name || !password) {
             return res.status(400).json({

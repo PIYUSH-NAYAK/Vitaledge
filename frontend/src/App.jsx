@@ -28,28 +28,14 @@ import { CartProvider } from "./context/CartContext"; // ✅ Cart Context
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ Firebase Protected Route
 import AdminProtectedRoute from "./components/AdminProtectedRoute"; // ✅ Admin Protected Route
 import SetPasswordModal from "./components/SetPasswordModal"; // ✅ Password setup modal
-import { ToastContainer } from "react-toastify";
+import NotificationContainer from "./components/NotificationContainer";
 
 const AppContent = () => {
   const { user, showPasswordSetup, newGoogleUser, closePasswordSetup } = useAuth(); // ✅ Firebase auth check
 
   return (
     <>
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable={false}
-        pauseOnHover={false}
-        theme="colored"
-        style={{ zIndex: 99999 }}
-        enableMultiContainer={false}
-        limit={3}
-      />
+      <NotificationContainer />
       
       {/* Password Setup Modal for new Google users */}
       <SetPasswordModal

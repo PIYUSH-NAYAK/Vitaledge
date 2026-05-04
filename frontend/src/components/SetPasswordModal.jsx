@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { linkEmailPassword } from '../firebase/auth';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import { FaEye, FaEyeSlash, FaTimes } from 'react-icons/fa';
 
 const SetPasswordModal = ({ isOpen, onClose, userEmail, onSuccess }) => {

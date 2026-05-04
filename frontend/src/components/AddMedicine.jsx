@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import { useAuth } from '../context/AuthContext';
 import ImageUpload from './common/ImageUpload';
 import Button from './mycomp2/Button';

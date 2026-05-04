@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, checkSignInMethods, linkEmailPassword } from '../firebase/auth';
-import { toast } from 'react-toastify';
+import toast from '../utils/notify';
 import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaCheck, FaTimes } from 'react-icons/fa';
 import Section from './mycomp2/Section';
 
